@@ -87,5 +87,16 @@ When you run the program, you can:
 
 This project is open-source and available under the MIT License.
 
-Version: 1.0
-Author: Mohamed Gad
+---
+
+## Version 
+
+**v1.0 - CLI Release**
+
+---
+
+## Author
+
+**Mohamed Gad**
+
+---
