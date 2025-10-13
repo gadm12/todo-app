@@ -1,106 +1,129 @@
 import json
 import os
 
-file_name= "to_do_list.json"
+file_name = "to_do_list.json"
+INVALID = "invalid entry!"
+
 
 def add_task():
-    
-    """Prompt the user for a new task and return it as a dictionary."""
-    
-    new_task=input("enter a task: ").strip()
-    
-    if not new_task:
-        print("you can't enter a blank task")
-        return None
-    
-    return {"task":new_task,"completed":False}
+    """Prompt the user for new tasks and return them as a list of dictionaries."""
+
+    tasks_to_add = []
+
+    while True:
+        new_task = input("\nEnter a task: ").strip()
+
+        if not new_task:
+            print("\nYou can't enter a blank task.")
+            continue
+
+        tasks_to_add.append({"task": new_task, "completed": False})
+
+        add_more = (
+            input("\nAdd another task? ('y' for yes, anything else for no): ")
+            .lower()
+            .strip()
+        )
+
+        if add_more == "y":
+            continue  # If they say 'y', continue to the next loop iteration
+        else:
+            break  # For ANY other input, break the loop
+
+    return tasks_to_add
 
 
 def view_tasks(all_tasks):
-    
-    if not all_tasks:
-        print("no tasks yet")
-        return
-    
-    for i,task in enumerate(all_tasks,start=1):
-        if isinstance(task,dict):
-            name=task.get("task","<no task>")
-            completed=task.get("completed",False)
-        else:
-            name=str(task)
-            completed=False
-        
-        status= "[\u2713]" if completed else "[ ]"
-        print(f"{i}.{status} {name}") 
+    """Display all tasks in a numbered list."""
 
-def get_task_selection(prompt,all_tasks):
-    
+    if not all_tasks:
+        print("No tasks yet.")
+        return
+
+    for i, task in enumerate(all_tasks, start=1):
+        if isinstance(task, dict):
+            name = task.get("task", "<no task>")
+            completed = task.get("completed", False)
+        else:
+            name = str(task)
+            completed = False
+
+        status = "[\u2713]" if completed else "[ ]"
+        print(f"{i}. {status} {name}")
+
+
+def get_task_selection(prompt, all_tasks):
+    """Get a valid task index from user input."""
+
     if not all_tasks:
         return None
-    
+
     while True:
-        
-        user_input=input(prompt).strip().lower()
-        
+        user_input = input(prompt).strip().lower()
+
         if user_input in ("exit", "e", "cancel", "c"):
             return None
-        
+
         try:
-            idx=int(user_input)
+            idx = int(user_input)
         except ValueError:
-            print("Invalid entry")
+            print(INVALID)
             continue
-        
-        if 1<= idx <= len(all_tasks):
-            return idx-1
+
+        if 1 <= idx <= len(all_tasks):
+            return idx - 1
         else:
-            print(f"please enter a number between 1 and {len(all_tasks)}")
-            
+            print(f"Please enter a number between 1 and {len(all_tasks)}")
+
+
 def mark_complete(all_tasks):
-    
+    """Mark a selected task as complete."""
+
     view_tasks(all_tasks)
-    
+
     if not all_tasks:
         return
-    
-    prompt="Which task did you complete? (number or 'exit'): "
-    
-    marking=get_task_selection(prompt,all_tasks)
-    
+
+    prompt = "Which task did you complete? (number or 'exit'): "
+    marking = get_task_selection(prompt, all_tasks)
+
     if marking is not None:
-        
-        all_tasks[marking]["completed"]=True
+        all_tasks[marking]["completed"] = True
         print(f"{all_tasks[marking]['task']} marked complete\n")
-        
+
+
 def delete_task(all_tasks):
-    
+    """Delete a selected task from the list."""
+
     view_tasks(all_tasks)
-    
+
     if not all_tasks:
         return
-    
-    prompt="Which task would you like to delete? (number or 'exit'): "
-    
-    removing=get_task_selection(prompt,all_tasks)
-    
+
+    prompt = "Which task would you like to delete? (number or 'exit'): "
+    removing = get_task_selection(prompt, all_tasks)
+
     if removing is not None:
-        
-        removed_task=all_tasks.pop(removing)
-        
+        removed_task = all_tasks.pop(removing)
         print(f"{removed_task['task']} removed\n")
-        return
-    
-def save_task(all_tasks):
-    
+
+
+def save_tasks(all_tasks):
+    """Save all tasks to a JSON file."""
+
     try:
         with open(file_name, "w") as f:
-            json.dump({"to_do_list":all_tasks},f, indent=4)
+            json.dump({"to_do_list": all_tasks}, f, indent=4)
     except Exception as e:
         print("Failed to save tasks:", e)
 
+
 def load_tasks():
+    """Load tasks from the JSON file if it exists."""
+
     if not os.path.exists(file_name):
         return []
+
     try:
         with open(file_name, "r") as f:
             data = json.load(f)
@@ -109,49 +132,55 @@ def load_tasks():
         print("Warning: could not load saved tasks (starting fresh).", e)
         return []
 
-def main_loop():
-    all_tasks=load_tasks()
-    print("")
-    print("="*33)
-    print(" Welcome to the To Do List App!!")
-    print("="*33)
-    print("")
 
+def main_loop():
+    """Main program loop."""
+
+    all_tasks = load_tasks()
+    print("")
+    print("=" * 33)
+    print(" Welcome to the To Do List App!!")
+    print("=" * 33)
+    print(f"\nLoaded {len(all_tasks)} saved task(s).\n")
 
     try:
         while True:
-            
-            command=input("\nEnter 'add', 'view', 'mark', 'delete', or 'q' to quit: ").lower()
-            
-            if command in ("add","1","a"):
-                dict_task=add_task()
-                if dict_task:
-                    all_tasks.append(dict_task)
-                    save_task(all_tasks)
-                    print("\nTask added successfully!")
-                    
-            elif command in ("view","2","v"):
+            command = input(
+                "\nEnter 'add', 'view', 'mark', 'delete', or 'q' to quit: "
+            ).lower()
+
+            if command in ("add", "1", "a"):
+                new_tasks = add_task()
+                if new_tasks:
+                    all_tasks.extend(new_tasks)
+                    count = len(new_tasks)
+                    save_tasks(all_tasks)
+                    print(
+                        f"\n{count} task{'s' if count > 1 else ''} added successfully!"
+                    )
+
+            elif command in ("view", "2", "v"):
                 view_tasks(all_tasks)
-                
-            elif command in ("mark","3","m"):
+
+            elif command in ("mark", "3", "m"):
                 mark_complete(all_tasks)
-                save_task(all_tasks)
-                
-            elif command in ("delete","4","d"):
+                save_tasks(all_tasks)
+
+            elif command in ("delete", "4", "d"):
                 delete_task(all_tasks)
-                save_task(all_tasks)
-                
-            elif command in ("quit","5",'q'):
-                save_task(all_tasks)
+                save_tasks(all_tasks)
+
+            elif command in ("quit", "5", "q"):
+                save_tasks(all_tasks)
                 break
-            
+
             else:
-                print("Invalid entry!")
+                print(INVALID)
 
     except KeyboardInterrupt:
-        
-        print("\nyou quit the program with ctrl+c, saving...")
-        save_task(all_tasks)
-        
+        print("\nYou quit the program with Ctrl+C, saving...")
+        save_tasks(all_tasks)
+
+
 if __name__ == "__main__":
     main_loop()

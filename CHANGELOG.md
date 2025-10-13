@@ -1,46 +1,37 @@
-## Version 1.0 — Initial Release
+# Changelog
 
-* Release Date: October 2025
-* Author: Mohamed Gad
-
----
-
-## Overview
-
-* This is the first official release (v1.0) of the To-Do List CLI App, a simple command-line task manager built with Python.
-* It helps users stay organized with essential task management features — add, view, complete, and delete — all stored locally in a JSON file.
+All notable changes to this project will be documented in this file.
 
 ---
 
-## Core Features
+## [v1.1] - 2025-10-06
 
-* ➕ Add Tasks: Create new to-do items via command input
-* 👀 View Tasks: Display all tasks with completion status
-* ✅ Mark Complete: Mark tasks as completed by number
-* ❌ Delete Tasks: Remove tasks by their index
-* 💾 Persistent Storage: Automatically saves and loads from to_do_list.json
+### Added
+- Ability to add multiple tasks in one session.
+- Confirmation prompt to continue adding tasks (`'y'` to continue, anything else to stop).
+- Task counter message after adding multiple tasks.
+- Improved code readability and structure for easier future updates.
 
----
+### Changed
+- `add_task()` now returns a list of task dictionaries instead of a single one.
+- Updated logic for cleaner user input handling (default “no” when pressing Enter).
 
-## Technical Highlights
-
-* Clean and modular Python code structure
-* Uses json for persistent data storage
-* Error handling for invalid input and file operations
-* Fully keyboard-based CLI interaction
-* Graceful exit handling with Ctrl + C
+### Fixed
+- Prevented blank task entries from being added.
+- Improved validation flow and feedback for user commands.
 
 ---
 
-## Next Steps (Planned for v1.1+)
+## [v1.0] - 2025-10-04
 
-* 🔍 Search tasks by keyword or date
-* 📅 Add due dates and task priorities
-* 🪟 Build a GUI version using Tkinter
-* 🌐 Optional web app with Flask or FastAPI
+### Added
+- Initial version of the **To-Do List CLI App**.
+- Core features:
+  - Add single task  
+  - View all tasks  
+  - Mark tasks as completed  
+  - Delete tasks  
+  - Save and load tasks using JSON
 
 ---
 
-## Developer Note
-
-“This version represents the foundation of the project — built with clean, simple code and a focus on learning real-world development practices. Future versions will expand functionality and introduce a user interface.”

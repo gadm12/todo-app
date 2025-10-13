@@ -7,7 +7,7 @@ This project is designed as a beginner-friendly way to practice functions, file 
 
 ## Features (MVP)
 
-* Add new tasks
+* Add multiple tasks at once
 * View all tasks
 * Mark tasks as completed
 * Delete tasks
@@ -91,7 +91,7 @@ This project is open-source and available under the MIT License.
 
 ## Version 
 
-**v1.0 - CLI Release**
+**v1.1 - CLI Release**
 
 ---
 
