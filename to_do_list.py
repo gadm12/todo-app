@@ -1,9 +1,10 @@
 import json
 import os
+from datetime import datetime
 
 file_name = "to_do_list.json"
 INVALID = "invalid entry!"
-
+TODAY = datetime.now()
 
 def add_task():
     """Prompt the user for new tasks and return them as a list of dictionaries."""
@@ -12,12 +13,26 @@ def add_task():
 
     while True:
         new_task = input("\nEnter a task: ").strip()
-
         if not new_task:
             print("\nYou can't enter a blank task.")
             continue
+        due_date=input("when is this task due? 'YYYY-MM-DD': ")
+        try:
+            dt=datetime.strptime(due_date,"%Y-%m-%d")
+        except ValueError:
+            print(INVALID)
+            break
+            
+        if dt.date() == TODAY.date():
+            continue
+        elif dt.date() < TODAY.date():
+            continue
+        else:
+            continue
 
-        tasks_to_add.append({"task": new_task, "completed": False})
+        
+
+        tasks_to_add.append({"task": new_task, "completed": False,"due_date":due_date})
 
         add_more = (
             input("\nAdd another task? ('y' for yes, anything else for no): ")
@@ -29,6 +44,9 @@ def add_task():
             continue  # If they say 'y', continue to the next loop iteration
         else:
             break  # For ANY other input, break the loop
+        
+        
+            
 
     return tasks_to_add
 
