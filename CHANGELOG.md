@@ -7,12 +7,17 @@ All notable changes to this project will be documented in this file.
 ## [v1.1] - 2025-10-06
 
 ### Added
+- Added **due date** support for tasks with input validation (`YYYY-MM-DD`).
+- Tasks now display their **due date status** (Overdue, Due Today, or Upcoming).
 - Ability to add multiple tasks in one session.
 - Confirmation prompt to continue adding tasks (`'y'` to continue, anything else to stop).
 - Task counter message after adding multiple tasks.
 - Improved code readability and structure for easier future updates.
 
 ### Changed
+- Improved program structure with better **error handling** and **docstrings**.
+- Refined CLI prompts for smoother user experience.
+- Displayed task counts when loading and after updates.
 - `add_task()` now returns a list of task dictionaries instead of a single one.
 - Updated logic for cleaner user input handling (default “no” when pressing Enter).
 

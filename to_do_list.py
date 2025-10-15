@@ -23,13 +23,7 @@ def add_task():
             print(INVALID)
             break
             
-        if dt.date() == TODAY.date():
-            continue
-        elif dt.date() < TODAY.date():
-            continue
-        else:
-            continue
-
+        
         
 
         tasks_to_add.append({"task": new_task, "completed": False,"due_date":due_date})
@@ -62,12 +56,25 @@ def view_tasks(all_tasks):
         if isinstance(task, dict):
             name = task.get("task", "<no task>")
             completed = task.get("completed", False)
+            due=task.get("due_date")
         else:
             name = str(task)
             completed = False
+            due=TODAY
 
         status = "[\u2713]" if completed else "[ ]"
-        print(f"{i}. {status} {name}")
+        display_text=f"{i}. {status} {name}"
+        if due:
+            due_date_obj=datetime.strptime(due,"%Y-%m-%d")
+            if due_date_obj.date() < TODAY.date():
+                display_text +=f" due: {due} over due"
+            elif due_date_obj.date() == TODAY.date():
+                display_text +=f" due: {due} due Today"
+            else:
+                display_text +=f" due: {due}"
+                
+        print(display_text)
+        
 
 
 def get_task_selection(prompt, all_tasks):
@@ -91,7 +98,7 @@ def get_task_selection(prompt, all_tasks):
         if 1 <= idx <= len(all_tasks):
             return idx - 1
         else:
-            print(f"Please enter a number between 1 and {len(all_tasks)}")
+            print(f"\nPlease enter a number between 1 and {len(all_tasks)}")
 
 
 def mark_complete(all_tasks):
@@ -118,7 +125,7 @@ def delete_task(all_tasks):
     if not all_tasks:
         return
 
-    prompt = "Which task would you like to delete? (number or 'exit'): "
+    prompt = "\nWhich task would you like to delete? (number or 'exit'): "
     removing = get_task_selection(prompt, all_tasks)
 
     if removing is not None:

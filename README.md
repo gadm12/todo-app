@@ -5,13 +5,15 @@ This project is designed as a beginner-friendly way to practice functions, file 
 
 ---
 
-## Features (MVP)
+## Features (v1.1)
 
 * Add multiple tasks at once
-* View all tasks
+* Add due dates to tasks (with validation: YYYY-MM-DD)
+* View all tasks with due date status (Overdue, Due Today, Upcoming)
 * Mark tasks as completed
 * Delete tasks
 * Save and load tasks using JSON
+* Clean and readable CLI output  
 
 ---
 
@@ -43,7 +45,8 @@ This project is designed as a beginner-friendly way to practice functions, file 
 When you run the program, you can:
 
 * Add tasks by typing their description.
-* View your current tasks with status (completed or not).
+* Optionally set a due date for each task.
+* View your current tasks with status (completed or not) and and due-date status.
 * Mark tasks as completed by selecting their number.
 * Delete tasks by number.
 * Save and load tasks automatically from `to_do_list.json`.
@@ -57,9 +60,11 @@ When you run the program, you can:
  Welcome to the To-Do App!
 ==============================
 
-[ ] 1. Buy groceries
-[✓] 2. Finish homework
-[ ] 3. Call Mom
+1. [ ] Buy groceries (Due: 2025-10-07 - Upcoming)
+2. [✓] Finish homework (Due: 2025-10-02 - Overdue)
+3. [ ] Call Mom (No due date)
+
+Total tasks: 3
 
 ```
 
@@ -70,22 +75,33 @@ When you run the program, you can:
 * Practice breaking a project into milestones.
 * Learn how to save and load data with JSON.
 * Build testing habits with unit tests.
+* Use Git branching and versioning effectively.
 * Document progress clearly in GitHub.
 
 ---
 
 ## Future Improvements
 
-* Add priorities and due dates
+* Add task priorities (High, Medium, Low)
 * Organize tasks into categories
 * Build a GUI (Tkinter or PySimpleGUI)
 * Create a web app version (Flask or FastAPI)
+* Add unit tests for core functions
 
 ---
 
 ## License
 
 This project is open-source and available under the MIT License.
+
+---
+
+| Version | Date       | Changes                                                                 |
+|----------|------------|--------------------------------------------------------------------------|
+| **v1.1** | Oct 2025   | Added bulk task input, due date feature, improved CLI formatting.       |
+| **v1.0** | Sep 2025   | Initial release with add, view, mark complete, delete, and save/load.   |
+
+
 
 ---
 
