@@ -130,6 +130,10 @@ def delete_task(all_tasks):
         removed_task = all_tasks.pop(removing)
         print(f"{removed_task['task']} removed\n")
 
+def search_tasks():
+    #coming soon
+    pass
+
 
 def save_tasks(all_tasks):
     """Save all tasks to a JSON file."""
