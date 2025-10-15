@@ -21,10 +21,8 @@ def add_task():
             dt=datetime.strptime(due_date,"%Y-%m-%d")
         except ValueError:
             print(INVALID)
-            break
+            continue
             
-        
-        
 
         tasks_to_add.append({"task": new_task, "completed": False,"due_date":due_date})
 
