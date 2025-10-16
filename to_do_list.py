@@ -1,10 +1,12 @@
 import json
 import os
 from datetime import datetime
+from unittest import result
 
 file_name = "to_do_list.json"
 INVALID = "invalid entry!"
-TODAY = datetime.now()
+
+
 
 def add_task():
     """Prompt the user for new tasks and return them as a list of dictionaries."""
@@ -16,15 +18,16 @@ def add_task():
         if not new_task:
             print("\nYou can't enter a blank task.")
             continue
-        due_date=input("when is this task due? 'YYYY-MM-DD': ")
+        due_date = input("when is this task due? 'YYYY-MM-DD': ")
         try:
-            dt=datetime.strptime(due_date,"%Y-%m-%d")
+            dt = datetime.strptime(due_date, "%Y-%m-%d")
         except ValueError:
             print(INVALID)
             continue
-            
 
-        tasks_to_add.append({"task": new_task, "completed": False,"due_date":due_date})
+        tasks_to_add.append(
+            {"task": new_task, "completed": False, "due_date": due_date}
+        )
 
         add_more = (
             input("\nAdd another task? ('y' for yes, anything else for no): ")
@@ -36,16 +39,15 @@ def add_task():
             continue  # If they say 'y', continue to the next loop iteration
         else:
             break  # For ANY other input, break the loop
-        
-        
-            
 
     return tasks_to_add
 
 
 def view_tasks(all_tasks):
     """Display all tasks in a numbered list."""
-
+    
+    TODAY = datetime.now()
+    
     if not all_tasks:
         print("No tasks yet.")
         return
@@ -54,25 +56,24 @@ def view_tasks(all_tasks):
         if isinstance(task, dict):
             name = task.get("task", "<no task>")
             completed = task.get("completed", False)
-            due=task.get("due_date")
+            due = task.get("due_date")
         else:
             name = str(task)
             completed = False
-            due=TODAY
+            due = None
 
         status = "[\u2713]" if completed else "[ ]"
-        display_text=f"{i}. {status} {name}"
+        display_text = f"{i}. {status} {name}"
         if due:
-            due_date_obj=datetime.strptime(due,"%Y-%m-%d")
+            due_date_obj = datetime.strptime(due, "%Y-%m-%d")
             if due_date_obj.date() < TODAY.date():
-                display_text +=f" due: {due} over due"
+                display_text += f" due: {due} over due"
             elif due_date_obj.date() == TODAY.date():
-                display_text +=f" due: {due} due Today"
+                display_text += f" due: {due} due Today"
             else:
-                display_text +=f" due: {due}"
-                
+                display_text += f" due: {due}"
+
         print(display_text)
-        
 
 
 def get_task_selection(prompt, all_tasks):
@@ -130,9 +131,18 @@ def delete_task(all_tasks):
         removed_task = all_tasks.pop(removing)
         print(f"{removed_task['task']} removed\n")
 
-def search_tasks():
-    #coming soon
-    pass
+
+def search_tasks(all_tasks):
+    """Search for a task by keyword."""
+
+    query = input("\nwhat are you looking for: ").lower().strip()
+    results = []
+    for task in all_tasks:
+        description = task.get("task", "<not found>")
+        if query in description.lower():
+            results.append(task)
+
+    return results
 
 
 def save_tasks(all_tasks):
@@ -173,7 +183,7 @@ def main_loop():
     try:
         while True:
             command = input(
-                "\nEnter 'add', 'view', 'mark', 'delete', or 'q' to quit: "
+                "\nEnter 'add', 'view', 'mark', 'delete', 'search' or 'q' to quit: "
             ).lower()
 
             if command in ("add", "1", "a"):
@@ -197,6 +207,10 @@ def main_loop():
                 delete_task(all_tasks)
                 save_tasks(all_tasks)
 
+            elif command in ("search", "6", "s"):
+                found_tasks = search_tasks(all_tasks)
+                print(f"\nFound {len(found_tasks)} matching task(s):")
+                view_tasks(found_tasks)
             elif command in ("quit", "5", "q"):
                 save_tasks(all_tasks)
                 break
