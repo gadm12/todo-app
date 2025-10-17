@@ -4,9 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ---
 
-## [v1.1] - 2025-10-06
+## [v1.2] - 2025-10-17
 
 ### Added
+- Implemented **search functionality** to find tasks by keyword.
 - Added **due date** support for tasks with input validation (`YYYY-MM-DD`).
 - Tasks now display their **due date status** (Overdue, Due Today, or Upcoming).
 - Ability to add multiple tasks in one session.
@@ -22,12 +23,13 @@ All notable changes to this project will be documented in this file.
 - Updated logic for cleaner user input handling (default “no” when pressing Enter).
 
 ### Fixed
+- Fixed `break` behavior in date validation to use `continue` instead.
 - Prevented blank task entries from being added.
 - Improved validation flow and feedback for user commands.
 
 ---
 
-## [v1.0] - 2025-10-04
+## [v1.1] - 2025-10-06
 
 ### Added
 - Initial version of the **To-Do List CLI App**.

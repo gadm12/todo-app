@@ -5,13 +5,14 @@ This project is designed as a beginner-friendly way to practice functions, file 
 
 ---
 
-## Features (v1.1)
+## Features (v1.2)
 
 * Add multiple tasks at once
 * Add due dates to tasks (with validation: YYYY-MM-DD)
 * View all tasks with due date status (Overdue, Due Today, Upcoming)
 * Mark tasks as completed
 * Delete tasks
+* **Search tasks** by keyword
 * Save and load tasks using JSON
 * Clean and readable CLI output  
 
@@ -49,6 +50,7 @@ When you run the program, you can:
 * View your current tasks with status (completed or not) and and due-date status.
 * Mark tasks as completed by selecting their number.
 * Delete tasks by number.
+* Search tasks by keyword.
 * Save and load tasks automatically from `to_do_list.json`.
 
 ---
@@ -61,7 +63,7 @@ When you run the program, you can:
 ==============================
 
 1. [ ] Buy groceries (Due: 2025-10-07 - Upcoming)
-2. [✓] Finish homework (Due: 2025-10-02 - Overdue)
+2. [✓] Finish homework (Due: 2025-10-02 - ⚠ OVERDUE!)
 3. [ ] Call Mom (No due date)
 
 Total tasks: 3
@@ -82,6 +84,7 @@ Total tasks: 3
 
 ## Future Improvements
 
+* Add task editing functionality
 * Add task priorities (High, Medium, Low)
 * Organize tasks into categories
 * Build a GUI (Tkinter or PySimpleGUI)
@@ -98,6 +101,7 @@ This project is open-source and available under the MIT License.
 
 | Version | Date       | Changes                                                                 |
 |----------|------------|--------------------------------------------------------------------------|
+| **v1.2** | Sep 2025   | Added due-date validation feedback, search feature, improved plural handling, and overdue detection.   |
 | **v1.1** | Oct 2025   | Added bulk task input, due date feature, improved CLI formatting.       |
 | **v1.0** | Sep 2025   | Initial release with add, view, mark complete, delete, and save/load.   |
 
@@ -107,7 +111,7 @@ This project is open-source and available under the MIT License.
 
 ## Version 
 
-**v1.1 - CLI Release**
+**v1.2 - CLI Release**
 
 ---
 

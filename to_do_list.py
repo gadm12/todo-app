@@ -1,7 +1,6 @@
 import json
 import os
 from datetime import datetime
-from unittest import result
 
 file_name = "to_do_list.json"
 INVALID = "invalid entry!"
@@ -67,7 +66,7 @@ def view_tasks(all_tasks):
         if due:
             due_date_obj = datetime.strptime(due, "%Y-%m-%d")
             if due_date_obj.date() < TODAY.date():
-                display_text += f" due: {due} over due"
+                display_text += f" due: {due} ⚠ OVERDUE!"
             elif due_date_obj.date() == TODAY.date():
                 display_text += f" due: {due} due Today"
             else:
@@ -178,7 +177,8 @@ def main_loop():
     print("=" * 33)
     print(" Welcome to the To Do List App!!")
     print("=" * 33)
-    print(f"\nLoaded {len(all_tasks)} saved task(s).\n")
+    count=len(all_tasks)
+    print(f"\nLoaded {len(all_tasks)} saved task{'s' if count > 1 else ''}.\n")
 
     try:
         while True:
@@ -209,7 +209,8 @@ def main_loop():
 
             elif command in ("search", "6", "s"):
                 found_tasks = search_tasks(all_tasks)
-                print(f"\nFound {len(found_tasks)} matching task(s):")
+                count=len(found_tasks)
+                print(f"\nFound {len(found_tasks)} matching task{'s' if count > 1 else ''}:")
                 view_tasks(found_tasks)
             elif command in ("quit", "5", "q"):
                 save_tasks(all_tasks)
