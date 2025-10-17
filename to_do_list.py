@@ -98,6 +98,26 @@ def get_task_selection(prompt, all_tasks):
         else:
             print(f"\nPlease enter a number between 1 and {len(all_tasks)}")
 
+def edit_task(all_tasks):
+    """Edit an already existing task."""
+    view_tasks(all_tasks)
+    
+    if not all_tasks:
+        return
+    
+    prompt="\nwhich task do you want to edit?: "
+    
+    idx_edit=get_task_selection(prompt,all_tasks)
+    
+    if idx_edit is not None:
+        new_text = input("Enter the new task text: ").strip()
+        if not new_text:
+            print("\nTask cannot be blank. Edit canceled.")
+            return
+        all_tasks[idx_edit]["task"] = new_text
+        print(f"\nTask {idx_edit + 1} updated successfully!")
+    
+    
 
 def mark_complete(all_tasks):
     """Mark a selected task as complete."""
@@ -183,7 +203,7 @@ def main_loop():
     try:
         while True:
             command = input(
-                "\nEnter 'add', 'view', 'mark', 'delete', 'search' or 'q' to quit: "
+                "\nEnter 'add', 'view', 'edit','mark', 'delete', 'search' or 'q' to quit: "
             ).lower()
 
             if command in ("add", "1", "a"):
@@ -205,6 +225,10 @@ def main_loop():
 
             elif command in ("delete", "4", "d"):
                 delete_task(all_tasks)
+                save_tasks(all_tasks)
+                
+            elif command in ("edit","e"):
+                edit_task(all_tasks)
                 save_tasks(all_tasks)
 
             elif command in ("search", "6", "s"):
