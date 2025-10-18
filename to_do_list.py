@@ -110,12 +110,35 @@ def edit_task(all_tasks):
     idx_edit=get_task_selection(prompt,all_tasks)
     
     if idx_edit is not None:
-        new_text = input("Enter the new task text: ").strip()
-        if not new_text:
-            print("\nTask cannot be blank. Edit canceled.")
-            return
-        all_tasks[idx_edit]["task"] = new_text
-        print(f"\nTask {idx_edit + 1} updated successfully!")
+        task_to_edit=all_tasks[idx_edit]
+        print(f"\nEditing task: {task_to_edit["task"]}")
+        print(f"current due date: {task_to_edit.get("due_date","N/A")}")
+        
+        choice=input("what do you want to edit? (1) description, (2) Due date: ").strip()
+        
+        if choice == "1":
+            new_text=input("enter your update: ")
+            if not new_text:
+                print("\nYou can't enter a blank task.")
+                return
+            task_to_edit["task"]=new_text
+            print(f"\nTask description updated successfully!")
+            
+        elif choice == "2":
+            new_date=input("when is this task due? 'YYYY-MM-DD': ")
+            try:
+                dt=datetime.strptime(new_date,"%Y-%m-%d")
+                
+                task_to_edit['due_date']=new_date
+                print(f"\nTask due date updated successfully!")
+                
+            except ValueError:
+                print(INVALID)
+        else:
+            print(INVALID)
+                
+                
+        
     
     
 
