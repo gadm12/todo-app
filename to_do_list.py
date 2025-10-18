@@ -111,8 +111,8 @@ def edit_task(all_tasks):
     
     if idx_edit is not None:
         task_to_edit=all_tasks[idx_edit]
-        print(f"\nEditing task: {task_to_edit["task"]}")
-        print(f"current due date: {task_to_edit.get("due_date","N/A")}")
+        print(f"\nEditing task: {task_to_edit['task']}")
+        print(f"current due date: {task_to_edit.get('due_date','N/A')}")
         
         choice=input("what do you want to edit? (1) description, (2) Due date: ").strip()
         
