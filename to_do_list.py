@@ -6,6 +6,14 @@ file_name = "to_do_list.json"
 INVALID = "invalid entry!"
 
 
+def validate_date(due_date):
+    """Validate a date string against 'YYYY-MM-DD'; return datetime object or None."""
+
+    try:
+        return datetime.strptime(due_date, "%Y-%m-%d")
+    except ValueError:
+        return None
+
 
 def add_task():
     """Prompt the user for new tasks and return them as a list of dictionaries."""
@@ -17,12 +25,17 @@ def add_task():
         if not new_task:
             print("\nYou can't enter a blank task.")
             continue
-        due_date = input("when is this task due? 'YYYY-MM-DD': ")
-        try:
-            dt = datetime.strptime(due_date, "%Y-%m-%d")
-        except ValueError:
-            print(INVALID)
-            continue
+        due_date = input(
+            "when is this task due? 'YYYY-MM-DD' or just press enter for no date: "
+        )
+
+        if not due_date:
+            due_date = None
+        else:
+            dt = validate_date(due_date)
+            if not dt:
+                print(INVALID)
+                continue
 
         tasks_to_add.append(
             {"task": new_task, "completed": False, "due_date": due_date}
@@ -44,9 +57,9 @@ def add_task():
 
 def view_tasks(all_tasks):
     """Display all tasks in a numbered list."""
-    
+
     TODAY = datetime.now()
-    
+
     if not all_tasks:
         print("No tasks yet.")
         return
@@ -98,49 +111,51 @@ def get_task_selection(prompt, all_tasks):
         else:
             print(f"\nPlease enter a number between 1 and {len(all_tasks)}")
 
+
 def edit_task(all_tasks):
     """Edit an already existing task."""
+
     view_tasks(all_tasks)
-    
+
     if not all_tasks:
         return
-    
-    prompt="\nwhich task do you want to edit?: "
-    
-    idx_edit=get_task_selection(prompt,all_tasks)
-    
+
+    prompt = "\nwhich task do you want to edit?: "
+
+    idx_edit = get_task_selection(prompt, all_tasks)
+
     if idx_edit is not None:
-        task_to_edit=all_tasks[idx_edit]
+        task_to_edit = all_tasks[idx_edit]
         print(f"\nEditing task: {task_to_edit['task']}")
-        print(f"current due date: {task_to_edit.get('due_date','N/A')}")
-        
-        choice=input("what do you want to edit? (1) description, (2) Due date: ").strip()
-        
+        print(f"current due date: {task_to_edit.get('due_date','N/A')}\n")
+
+        choice = input(
+            "what do you want to edit? (1) description, (2) Due date: "
+        ).strip()
+
         if choice == "1":
-            new_text=input("enter your update: ")
+            new_text = input("enter your update: ")
             if not new_text:
                 print("\nYou can't enter a blank task.")
                 return
-            task_to_edit["task"]=new_text
+            task_to_edit["task"] = new_text
             print(f"\nTask description updated successfully!")
-            
+
         elif choice == "2":
-            new_date=input("when is this task due? 'YYYY-MM-DD': ")
-            try:
-                dt=datetime.strptime(new_date,"%Y-%m-%d")
-                
-                task_to_edit['due_date']=new_date
+            new_date = input("when is this task due? 'YYYY-MM-DD': ")
+
+            dt = validate_date(new_date)
+            if dt is not None:
+                task_to_edit["due_date"] = new_date
                 print(f"\nTask due date updated successfully!")
-                
-            except ValueError:
+            else:
                 print(INVALID)
+
         else:
             print(INVALID)
-                
-                
-        
-    
-    
+
+        print("\nAll changes saved successfully")
+
 
 def mark_complete(all_tasks):
     """Mark a selected task as complete."""
@@ -220,16 +235,20 @@ def main_loop():
     print("=" * 33)
     print(" Welcome to the To Do List App!!")
     print("=" * 33)
-    count=len(all_tasks)
+    count = len(all_tasks)
     print(f"\nLoaded {len(all_tasks)} saved task{'s' if count > 1 else ''}.\n")
 
     try:
         while True:
-            command = input(
-                "\nEnter 'add', 'view', 'edit','mark', 'delete', 'search' or 'q' to quit: "
-            ).lower()
+            command = (
+                input(
+                    "\nEnter 'add', 'view', 'edit', 'mark', 'delete', 'search' or 'q' to quit: "
+                )
+                .lower()
+                .strip()
+            )
 
-            if command in ("add", "1", "a"):
+            if command in ("add", "a"):
                 new_tasks = add_task()
                 if new_tasks:
                     all_tasks.extend(new_tasks)
@@ -239,27 +258,30 @@ def main_loop():
                         f"\n{count} task{'s' if count > 1 else ''} added successfully!"
                     )
 
-            elif command in ("view", "2", "v"):
+            elif command in ("view", "v"):
                 view_tasks(all_tasks)
 
-            elif command in ("mark", "3", "m"):
+            elif command in ("mark", "m"):
                 mark_complete(all_tasks)
                 save_tasks(all_tasks)
 
-            elif command in ("delete", "4", "d"):
+            elif command in ("delete", "d"):
                 delete_task(all_tasks)
                 save_tasks(all_tasks)
-                
-            elif command in ("edit","e"):
+
+            elif command in ("edit", "e"):
                 edit_task(all_tasks)
                 save_tasks(all_tasks)
 
-            elif command in ("search", "6", "s"):
+            elif command in ("search", "s"):
                 found_tasks = search_tasks(all_tasks)
-                count=len(found_tasks)
-                print(f"\nFound {len(found_tasks)} matching task{'s' if count > 1 else ''}:")
+                count = len(found_tasks)
+                print("\n--- Search Results ---")
+                print(
+                    f"\nFound {len(found_tasks)} matching task{'s' if count > 1 else ''}:"
+                )
                 view_tasks(found_tasks)
-            elif command in ("quit", "5", "q"):
+            elif command in ("quit", "q"):
                 save_tasks(all_tasks)
                 break
 

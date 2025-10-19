@@ -5,14 +5,15 @@ This project is designed as a beginner-friendly way to practice functions, file 
 
 ---
 
-## Features (v1.2)
+## Features (v1.3)
 
 * Add multiple tasks at once
 * Add due dates to tasks (with validation: YYYY-MM-DD)
 * View all tasks with due date status (Overdue, Due Today, Upcoming)
+* **Edit existing tasks (description or due date)**
+* **Search tasks** by keyword
 * Mark tasks as completed
 * Delete tasks
-* **Search tasks** by keyword
 * Save and load tasks using JSON
 * Clean and readable CLI output  
 
@@ -101,7 +102,8 @@ This project is open-source and available under the MIT License.
 
 | Version | Date       | Changes                                                                 |
 |----------|------------|--------------------------------------------------------------------------|
-| **v1.2** | Sep 2025   | Added due-date validation feedback, search feature, improved plural handling, and overdue detection.   |
+| **v1.3** | Oct 2025   | Added edit and search features, improved UX and internal code cleanup.   |
+| **v1.2** | Oct 2025   | Added due-date validation feedback, search feature, improved plural handling, and overdue detection.   |
 | **v1.1** | Oct 2025   | Added bulk task input, due date feature, improved CLI formatting.       |
 | **v1.0** | Sep 2025   | Initial release with add, view, mark complete, delete, and save/load.   |
 
@@ -111,7 +113,7 @@ This project is open-source and available under the MIT License.
 
 ## Version 
 
-**v1.2 - CLI Release**
+**v1.3 - CLI Enhancement Release**
 
 ---
 
