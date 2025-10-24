@@ -1,7 +1,7 @@
 # My data file
-to_do_list.json
-test.json
-ROADMAP.md
+v1.0_CLI/to_do_list.json
+v1.0_CLI/test.json
+v1.0_CLI/ROADMAP.md
 
 # My temporary test file
-_scratchpad.py
+v1.0_CLI/_scratchpad.py
