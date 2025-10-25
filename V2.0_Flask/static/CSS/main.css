@@ -1,4 +1,42 @@
 body{
+    font-size: 16px;
     margin:0;
     font-family: sans-serif;
+}
+table, th, td {
+  border: 1px solid black; /* Add a 1-pixel solid black border */
+  border-collapse: collapse; /* Make borders neat, not doubled */
+}
+
+th, td {
+  padding: 10px; /* Add some space inside the cells */
+}
+.content {
+
+    width: 400px; /* Or a fixed width like 600px */
+    margin-left: auto;
+    margin-right: auto;
+    
+}
+.content table {
+    width: 100%;
+}
+.content form input[type="text"] {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 5px; /* Match td padding */
+    margin-top: 20px;
+    margin-bottom: 10px; /* Add space below input */
+}
+.content form input[type="submit"] {
+    margin-top: 10px; /* Add some space above the button */
+    display: block; /* Make it a block element */
+    width: 100%; /* Make button fill width */
+}
+.content h1 {
+  font-size: 2em; /* Makes the h1 twice as large as the body text */
+}
+.content form {
+    margin: 1px;
+    padding: 1px;
 }
