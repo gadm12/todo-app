@@ -1,48 +1,84 @@
-h1 {
-  font-size: 2em; /* Example size */
+body {
+  font-size: 16px;
+  margin: 0;
   font-family: sans-serif;
-  text-align: center; /* Example alignment */
-  margin-top: 20px; /* Example margin */
+  background-color: #f7f7f7;
 }
-body{
-    font-size: 16px;
-    margin:0;
-    font-family: sans-serif;
+
+/* Center the content nicely */
+.content {
+  width: 500px;
+  margin: 40px auto;
+  background: white;
+  padding: 20px 30px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
-table, th, td {
-  border: 1px solid black; /* Add a 1-pixel solid black border */
-  border-collapse: collapse; /* Make borders neat, not doubled */
+
+/* Headings */
+.content h1 {
+  text-align: center;
+  font-size: 2em;
+  margin-bottom: 25px;
+}
+
+/* Table styling */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
 }
 
 th, td {
-  padding: 10px; /* Add some space inside the cells */
+  border: 1px solid #ddd;
+  padding: 12px 10px;
+  text-align: center;
 }
-.content {
 
-    width: 400px; /* Or a fixed width like 600px */
-    margin-left: auto;
-    margin-right: auto;
-    
+th {
+  background-color: #f0f0f0;
+  font-weight: bold;
 }
-.content table {
-    width: 100%;
+
+tr:nth-child(even) {
+  background-color: #fafafa;
 }
-.content form input[type="text"] {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 5px; /* Match td padding */
-    margin-top: 20px;
-    margin-bottom: 10px; /* Add space below input */
+
+/* Links */
+a {
+  color: #7a00cc;
+  text-decoration: none;
 }
-.content form input[type="submit"] {
-    margin-top: 10px; /* Add some space above the button */
-    display: block; /* Make it a block element */
-    width: 100%; /* Make button fill width */
+
+a:hover {
+  text-decoration: underline;
 }
-.content h1 {
-  font-size: 2em; /* Makes the h1 twice as large as the body text */
+
+/* Form styling */
+form {
+  margin-top: 20px;
 }
-.content form {
-    margin: 1px;
-    padding: 1px;
+
+form input[type="text"] {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+form input[type="submit"] {
+  width: 100%;
+  padding: 10px;
+  background-color: #7a00cc;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+form input[type="submit"]:hover {
+  background-color: #5b0099;
 }

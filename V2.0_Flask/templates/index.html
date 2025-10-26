@@ -2,7 +2,7 @@
 
     {% block head %}
 
-        <h1>Welcome To the todo app</h1>
+        <h1 style="text-align:center">Welcome To the todo app</h1>
 
     {% endblock %}
 
@@ -20,6 +20,8 @@
                 <tr>
                     <th>Task</th>
                     <th>Added</th>
+                    <th>status</th>
+                    <th>mark</th>
                     <th>Actions</th>
                     
                 </tr>
@@ -27,8 +29,29 @@
                 {% for task in tasks %}
 
                     <tr>
-                        <td> {{ task.content}} </td>
+                        <td> 
+
+                            {% if task.completed %}
+                                ✅ <s>{{ task.content }}</s>
+                            {% else %}
+                                🕓 {{ task.content }}
+
+                            {% endif %}
+                        </td>
+
                         <td> {{task.date_created.date()}} </td>
+
+                        <td>
+                            {% if task.completed %}
+                                Done
+                            {% else %}
+                                Pending
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if not task.completed %}
+                                <a href="/complete/{{ task.id }}">Mark Complete</a><br>
+                            {% endif %}
                         <td>
                             <a href="/delete/{{task.id}}">Delete</a>
                             <br>
