@@ -5,9 +5,13 @@ v1.0_CLI/ROADMAP.md
 v2.0_Flask/tasks.json
 v2.0_Flask/instance
 
+
 # My temporary test file
 v1.0_CLI/_scratchpad.py
 
 #virtual environment
 v2.0_Flask/venv/
+
+#cache
+v2.0_Flask/__pycache__
 
