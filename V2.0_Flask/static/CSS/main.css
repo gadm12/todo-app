@@ -5,9 +5,10 @@ body {
   background-color: #f7f7f7;
 }
 
-/* Center the content nicely */
+/* Center content */
 .content {
-  width: 500px;
+  max-width: 85%;
+  width: 650px; /* balanced width for current + future columns */
   margin: 40px auto;
   background: white;
   padding: 20px 30px;
@@ -22,17 +23,55 @@ body {
   margin-bottom: 25px;
 }
 
+/* Table container */
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
 /* Table styling */
 table {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 20px;
+  table-layout: fixed;
 }
 
 th, td {
   border: 1px solid #ddd;
-  padding: 12px 10px;
+  padding: 10px;
   text-align: center;
+  vertical-align: middle;
+  white-space: normal;   /* allow wrapping */
+  word-wrap: break-word; /* break long words if needed */
+}
+
+/* Column width balance */
+th:first-child,
+td:first-child {
+  width: 35%; /* Task */
+}
+th:nth-child(2),
+td:nth-child(2) {
+  width: 18%; /* Added */
+}
+th:nth-child(3),
+td:nth-child(3) {
+  width: 12%; /* Status */
+}
+th:nth-child(4),
+td:nth-child(4) {
+  width: 15%; /* Mark */
+}
+th:nth-child(5),
+td:nth-child(5) {
+  width: 20%; /* Actions */
+}
+
+/* Ready for future Due Date column */
+th:nth-child(6),
+td:nth-child(6) {
+  width: 15%;
 }
 
 th {
@@ -79,6 +118,6 @@ form input[type="submit"] {
   cursor: pointer;
 }
 
-form input[type="submit"]:hover {
+form input[type="submit"]:hover { 
   background-color: #5b0099;
 }
