@@ -1,16 +1,18 @@
 ## To-Do App (v2.0 Flask)
 
 * A simple web-based **To-Do application built using Flask**.
-* This version upgrades the previous CLI version by adding a user-friendly web interface.
+* This version improves on v2.0 by adding a **due date feature**, **database integration**, and an improved **task table layout**.
 
 ---
 
 ## Features
 
 - Add, view, and mark tasks as complete
-- Simple HTML frontend
-- Flask backend for task management
-- Easily extendable for future features (like database, login, or calendar integration)
+- **Set a due date** for each task  
+- Tasks display both **added date** and **due date**
+- Clean and responsive table layout  
+- Flash message feedback for user actions  
+- Flask + SQLAlchemy database integration (SQLite)
 
 --- 
 
@@ -19,6 +21,7 @@
 - Python 3
 - Flask
 - HTML / Jinja2 Templates
+- CSS (no JavaScript required)
 
 ---
 
@@ -36,16 +39,25 @@
 
     ```bash
     python -m venv venv
-    venv\Scripts\activate  # Windows
+    venv\Scripts\activate
     ```
 
 3. Install dependencies
 
     ```bash
-    pip install flask
+    pip install flask flask_sqlalchemy
     ```
 
-4. Run the app
+4. Initialize or upgrade the database
+
+    ```bash
+    flask shell
+    >>> from models import db
+    >>> db.create_all()
+    >>> exit()
+    ```
+
+5. Run the app
 
     ```bash
     python app.py
@@ -57,9 +69,10 @@ Then open your browser at: http://127.0.0.1:5000/
 
 ## Future Plans
 
-* Add a database (SQLite)
-* Implement user authentication
-* Integrate email and calendar features
+* Highlight overdue tasks  
+* Allow task editing (content and due date)  
+* Sort tasks by due date or completion status  
+* Add user authentication for multiple users
 
 ---
 
@@ -71,7 +84,7 @@ This project is open-source and available under the MIT License.
 
 ## Version 
 
-**v2.0- Web Application Release**
+**v2.1- Flask with Database & Due Dates**
 
 ---
 
