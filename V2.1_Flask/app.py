@@ -18,7 +18,7 @@ db.init_app(app)
 def index():
     if request.method == "POST":
         task_content = request.form["content"].strip()
-        due_date_str=request.form.get("due_date")
+        due_date_str=request.form.get("due")
         if not task_content:
             flash("Task cannot be empty!")
             return redirect(url_for("index"))

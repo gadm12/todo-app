@@ -1,17 +1,18 @@
 # My data file
-v1.0_CLI/to_do_list.json
-v1.0_CLI/test.json
-v1.0_CLI/ROADMAP.md
-v2.0_Flask/tasks.json
-v2.0_Flask/instance
+v1.3_CLI/to_do_list.json
+v1.3_CLI/test.json
+v1.3_CLI/ROADMAP.md
+v2.1_Flask/tasks.json
+v2.1_Flask/instance
 
 
 # My temporary test file
-v1.0_CLI/_scratchpad.py
+v1.3_CLI/_scratchpad.py
+v2.1_Flask/_scratchpad.py
 
 #virtual environment
-v2.0_Flask/venv/
+v2.1_Flask/venv/
 
 #cache
-v2.0_Flask/__pycache__
+v2.1_Flask/__pycache__
 

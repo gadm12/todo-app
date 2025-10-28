@@ -50,6 +50,8 @@ th, td {
 th:first-child,
 td:first-child {
   width: 35%; /* Task */
+  text-align: left;
+  padding-left: 15px;
 }
 th:nth-child(2),
 td:nth-child(2) {
@@ -96,20 +98,39 @@ a:hover {
 /* Form styling */
 form {
   margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* space between rows */
 }
 
+/* Full-width text input for task */
 form input[type="text"] {
-  width: 100%;
+  width: 35%;
   box-sizing: border-box;
   padding: 10px;
-  margin-bottom: 10px;
   border: 1px solid #ccc;
   border-radius: 6px;
 }
 
+/* Container for date + button on the same line */
+.form-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Small date input */
+form input[type="date"] {
+  width: 160px; /* small size, fits yyyy-mm-dd */
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+/* Add Task button next to date, smaller */
 form input[type="submit"] {
-  width: 100%;
-  padding: 10px;
+  width: 120px;
+  padding: 8px;
   background-color: #7a00cc;
   color: white;
   font-weight: bold;
@@ -118,6 +139,6 @@ form input[type="submit"] {
   cursor: pointer;
 }
 
-form input[type="submit"]:hover { 
+form input[type="submit"]:hover {
   background-color: #5b0099;
 }

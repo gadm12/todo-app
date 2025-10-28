@@ -54,7 +54,7 @@
                         </td>
 
                         <td> {{task.date_created.date()}} </td>
-                        <td>{{task.due_date if task.due_date else '—'}}</td>
+                        <td>{{task.due if task.due else '—'}}</td>
 
                         <td>
                             {% if task.completed %}
@@ -69,6 +69,7 @@
                             {% endif %}
                         <td>
                             <a href="/delete/{{task.id}}">Delete</a>
+                            <br>
                             <br>
                             <a href="/update/{{task.id}}">Update</a>
                         </td>
