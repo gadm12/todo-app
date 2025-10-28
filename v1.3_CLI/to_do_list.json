@@ -1,0 +1,62 @@
+{
+    "to_do_list": [
+        {
+            "task": "drink the mild",
+            "completed": true
+        },
+        {
+            "task": "homework",
+            "completed": false
+        },
+        {
+            "task": "shower",
+            "completed": true
+        },
+        {
+            "task": "code",
+            "completed": false
+        },
+        {
+            "task": "youtube",
+            "completed": false
+        },
+        {
+            "task": "sleep early",
+            "completed": false
+        },
+        {
+            "task": "set allarm",
+            "completed": false
+        },
+        {
+            "task": "VA doctor",
+            "completed": false,
+            "due_date": "2025-10-25"
+        },
+        {
+            "task": "test date",
+            "completed": false,
+            "due_date": "2025-10-16"
+        },
+        {
+            "task": "check",
+            "completed": false,
+            "due_date": "2025-10-14"
+        },
+        {
+            "task": "finish the goal",
+            "completed": false,
+            "due_date": "2025-10-20"
+        },
+        {
+            "task": "testing",
+            "completed": false,
+            "due_date": "2025-10-15"
+        },
+        {
+            "task": "how is it now",
+            "completed": false,
+            "due_date": "2025-10-18"
+        }
+    ]
+}
