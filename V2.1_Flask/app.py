@@ -16,6 +16,7 @@ db.init_app(app)
 
 @app.route("/", methods=["POST", "GET"])
 def index():
+    current_time = datetime.now().strftime("%A, %B %d, %Y - %I:%M %p")
     if request.method == "POST":
         task_content = request.form["content"].strip()
         due_date_str=request.form.get("due")
@@ -40,7 +41,7 @@ def index():
             return "There was an issue adding your task"
     else:
         tasks = Todo.query.order_by(Todo.date_created.desc()).all()
-        return render_template("index.html", tasks=tasks)
+        return render_template("index.html", tasks=tasks, current_time=current_time)
 
         
         

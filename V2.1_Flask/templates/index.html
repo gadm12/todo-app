@@ -23,6 +23,10 @@
 
     <div class="table-container">
         <h1 style="text-align:center">Task Master</h1>
+        <p style="text-align:left; color: rgb(127, 20, 228); font-size: 0.9em;">
+            {{ current_time }}
+            
+        </p>
         
         {% if tasks|length < 1 %}
         <h4 style="text-align:center">There is no tasks yet</h4>
