@@ -89,6 +89,17 @@ def complete(id):
     db.session.commit()
     flash("Task has been marked complete")
     return redirect(url_for("index"))
+
+@app.route("/unmark/<int:id>")
+def unmark(id):
+    
+    unmark_task = Todo.query.get_or_404(id)
+    
+    unmark_task.completed = 0
+    db.session.commit()
+    flash("Task has been marked as incomplete")
+    return redirect(url_for("index"))
+    
     
 
 if __name__ == "__main__":

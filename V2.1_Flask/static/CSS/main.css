@@ -142,3 +142,27 @@ form input[type="submit"] {
 form input[type="submit"]:hover {
   background-color: #5b0099;
 }
+
+.btn {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.9em;
+  font-weight: bold;
+  color: white;
+  text-decoration: none;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn:hover {
+  transform: scale(1.03);
+  opacity: 0.9;
+}
+
+.btn-complete {
+  background-color: #7a00cc; /* Matches your app's theme */
+}
+
+.btn-unmark {
+  background-color: #ff9800;
+}

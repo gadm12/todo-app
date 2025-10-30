@@ -69,7 +69,9 @@
                         </td>
                         <td>
                             {% if not task.completed %}
-                                <a href="/complete/{{ task.id }}">Mark Complete</a><br>
+                                <a href="/complete/{{task.id}}" class="btn btn-complete">✅ Mark Complete</a>
+                            {% else %}
+                                <a href="/unmark/{{task.id}}" class="btn btn-unmark">↩️ Unmark</a>
                             {% endif %}
                         <td>
                             <a href="/delete/{{task.id}}">Delete</a>
