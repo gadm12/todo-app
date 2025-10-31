@@ -5,10 +5,10 @@ body {
   background-color: #f7f7f7;
 }
 
-/* Center content */
+
 .content {
   max-width: 85%;
-  width: 650px; /* balanced width for current + future columns */
+  width: 650px; 
   margin: 40px auto;
   background: white;
   padding: 20px 30px;
@@ -16,20 +16,20 @@ body {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* Headings */
+
 .content h1 {
   text-align: center;
   font-size: 2em;
   margin-bottom: 25px;
 }
 
-/* Table container */
+
 .table-container {
   width: 100%;
   overflow-x: auto;
 }
 
-/* Table styling */
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -42,37 +42,42 @@ th, td {
   padding: 10px;
   text-align: center;
   vertical-align: middle;
-  white-space: normal;   /* allow wrapping */
-  word-wrap: break-word; /* break long words if needed */
+  white-space: normal;   
+  word-wrap: break-word; 
 }
 
-/* Column width balance */
+
 th:first-child,
 td:first-child {
-  width: 35%; /* Task */
-  text-align: left;
-  padding-left: 15px;
+  width: 5%; 
+  
 }
 th:nth-child(2),
 td:nth-child(2) {
-  width: 18%; /* Added */
+  width: 30%; 
+  text-align: left;
+  padding-left: 15px; 
 }
 th:nth-child(3),
 td:nth-child(3) {
-  width: 12%; /* Status */
+  width: 10%; 
 }
 th:nth-child(4),
 td:nth-child(4) {
-  width: 15%; /* Mark */
+  width: 10%;
 }
 th:nth-child(5),
 td:nth-child(5) {
-  width: 20%; /* Actions */
+  width: 15%; 
 }
 
-/* Ready for future Due Date column */
+
 th:nth-child(6),
 td:nth-child(6) {
+  width: 15%;
+}
+th:nth-child(7),
+td:nth-child(7) {
   width: 15%;
 }
 
@@ -85,7 +90,7 @@ tr:nth-child(even) {
   background-color: #fafafa;
 }
 
-/* Links */
+
 a {
   color: #7a00cc;
   text-decoration: none;
@@ -95,15 +100,15 @@ a:hover {
   text-decoration: underline;
 }
 
-/* Form styling */
+
 form {
   margin-top: 20px;
   display: flex;
   flex-direction: column;
-  gap: 10px; /* space between rows */
+  gap: 10px; 
 }
 
-/* Full-width text input for task */
+
 form input[type="text"] {
   width: 35%;
   box-sizing: border-box;
@@ -112,7 +117,7 @@ form input[type="text"] {
   border-radius: 6px;
 }
 
-/* Container for date + button on the same line */
+
 .form-row {
   display: flex;
   align-items: center;
@@ -121,13 +126,13 @@ form input[type="text"] {
 
 /* Small date input */
 form input[type="date"] {
-  width: 160px; /* small size, fits yyyy-mm-dd */
+  width: 160px; 
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 6px;
 }
 
-/* Add Task button next to date, smaller */
+
 form input[type="submit"] {
   width: 120px;
   padding: 8px;
@@ -160,9 +165,95 @@ form input[type="submit"]:hover {
 }
 
 .btn-complete {
-  background-color: #7a00cc; /* Matches your app's theme */
+  background-color: #7a00cc; 
 }
 
 .btn-unmark {
   background-color: #ff9800;
 }
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+form input[type="submit"]:hover {
+  background-color: #5b0099;
+  transform: scale(1.03);
+  transition: transform 0.1s ease;
+}
+
+#sort {
+  margin: 10px 0 20px 10px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 0.95em;
+}
+
+th a {
+  color: inherit;
+  text-decoration: none;
+  display: block;
+  padding: 6px;
+  transition: background-color 0.2s ease;
+}
+
+th a:hover {
+  background-color: #e0d5ff;
+  text-decoration: underline;
+}
+
+th a {
+  color: inherit;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 6px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+th a:hover {
+  background-color: #f0e8ff;
+  color: #5b2df5;
+  text-decoration: underline;
+}
+
+.sort-indicator {
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+th a:hover .sort-indicator {
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+
+  th a.sortable {
+    color: black;
+    text-decoration: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+
+  th a.sortable:hover {
+    color: purple;
+    text-decoration: underline;
+  }
+
+  th a.sortable.asc::after {
+    content: " ▲";
+    font-size: 0.8em;
+  }
+
+  th a.sortable.desc::after {
+    content: " ▼";
+    font-size: 0.8em;
+  }
+

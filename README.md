@@ -1,4 +1,4 @@
-## To-Do App (v2.0 Flask)
+## To-Do App (v2.1 Flask)
 
 * A simple web-based **To-Do application built using Flask**.
 * This version improves on v2.0 by adding a **due date feature**, **database integration**, and an improved **task table layout**.
@@ -7,7 +7,10 @@
 
 ## Features
 
-- Add, view, and mark tasks as complete
+- Implemented column-based sorting
+- Update task and update task due date
+- Added # numbering column
+- Add, view, and mark **and unmark** tasks as complete
 - **Set a due date** for each task  
 - Tasks display both **added date** and **due date**
 - Clean and responsive table layout  

@@ -20,13 +20,17 @@
             {% endif %}
         {% endwith %}
 
+    
+
 
     <div class="table-container">
         <h1 style="text-align:center">Task Master</h1>
         <p style="text-align:left; color: rgb(127, 20, 228); font-size: 0.9em;">
             {{ current_time }}
+
             
         </p>
+        
         
         {% if tasks|length < 1 %}
         <h4 style="text-align:center">There is no tasks yet</h4>
@@ -34,27 +38,52 @@
         {% else %}
 
             <table>
+                <thead>
                 <tr>
-                    <th>Task</th>
-                    <th>Added</th>
-                    <th>Due</th>
-                    <th>status</th>
-                    <th>mark</th>
-                    <th>Actions</th>
                     
+                    <th>#</th>
+                    <th>
+                    <a href="{{ url_for('index', sort='content', order='desc' if sort == 'content' and order == 'asc' else 'asc') }}"
+                        class="sortable {% if sort == 'content' %}{{ order }}{% endif %}">
+                        Task
+                    </a>
+                    </th>
+                    <th>
+                    <a href="{{ url_for('index', sort='date_created', order='desc' if sort == 'date_created' and order == 'asc' else 'asc') }}"
+                        class="sortable {% if sort == 'date_created' %}{{ order }}{% endif %}">
+                        Added
+                    </a>
+                    </th>
+                    <th>
+                    <a href="{{ url_for('index', sort='due', order='desc' if sort == 'due' and order == 'asc' else 'asc') }}"
+                        class="sortable {% if sort == 'due' %}{{ order }}{% endif %}">
+                        Due
+                    </a>
+                    </th>
+                    <th>
+                    <a href="{{ url_for('index', sort='completed', order='desc' if sort == 'completed' and order == 'asc' else 'asc') }}"
+                        class="sortable {% if sort == 'completed' %}{{ order }}{% endif %}">
+                        Status
+                    </a>
+                    </th>
+                    <th>Mark</th>
+                    <th>Actions</th>
                 </tr>
+                </thead>
+
 
                 {% for task in tasks %}
 
                     <tr>
+                        <td>{{loop.index}}</td>
                         <td> 
 
                             {% if task.completed %}
                                 ✅ <s>{{ task.content }}</s>
                             {% else %}
                                 🕓 {{ task.content }}
-
                             {% endif %}
+
                         </td>
 
                         <td> {{task.date_created.date()}} </td>

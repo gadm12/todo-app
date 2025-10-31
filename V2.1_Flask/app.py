@@ -40,10 +40,46 @@ def index():
             print(f"Error adding task: {e}")
             return "There was an issue adding your task"
     else:
-        tasks = Todo.query.order_by(Todo.date_created.desc()).all()
-        return render_template("index.html", tasks=tasks, current_time=current_time)
+        sort = request.args.get("sort", "created")
+        order = request.args.get("order","asc")
+        
+        query = Todo.query
+
+        if sort == "due":
+            query = Todo.query.order_by(Todo.due.desc() if order == "desc" else Todo.due.asc())
+        elif sort == "completed":
+            query = query = query.order_by(Todo.completed.desc() if order == "desc" else Todo.completed.asc())
+        else:
+            query = query.order_by(Todo.date_created.desc() if order == "desc" else Todo.date_created.asc())
+            
+        tasks= query.all()
+        return render_template("index.html", tasks=tasks, sort=sort, order=order ,current_time=current_time)
 
         
+@app.route("/update/<int:id>", methods=["POST", "GET"])
+def update(id):
+    
+    task = Todo.query.get_or_404(id)
+    
+    if request.method == "POST":
+        task.content = request.form["content"]
+        
+        due_str = request.form["due"]
+        
+        if due_str:  
+            task.due = datetime.strptime(due_str, "%Y-%m-%d").date()
+        else:
+            task.due = None 
+        
+        try:
+            db.session.commit()
+            flash("Task has been updated")
+            return redirect(url_for("index"))
+        except Exception as e:
+            db.session.rollback()
+            return f"Error updating task: {e}"
+    else:
+        return render_template("update.html", task=task)        
         
 
 @app.route("/delete/<int:id>")
@@ -59,23 +95,6 @@ def delete(id):
     
     
 
-@app.route("/update/<int:id>", methods=["POST", "GET"])
-def update(id):
-    
-    task = Todo.query.get_or_404(id)
-    
-    
-    
-    if request.method == "POST":
-        task.content = request.form["content"]
-        try:
-            db.session.commit()
-            flash("Task has been updated")
-            return redirect(url_for("index"))
-        except Exception as e:
-            return f"Error updating task: {e}"
-    else:
-        return render_template("update.html", task=task)
     
 
     
