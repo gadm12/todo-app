@@ -117,11 +117,11 @@ def index():
         try:
             db.session.add(new_task)
             db.session.commit()
-            flash("Task added successfully")
+            flash("Task added successfully", "success")
             return redirect(url_for("index"))
         except Exception as e:
             print(f"Error adding task: {e}")
-            flash("There was an issue adding your task")
+            flash("There was an issue adding your task", "danger")
             return redirect(url_for("index"))
     else:
         sort = request.args.get("sort", "created")
@@ -158,7 +158,7 @@ def update(id):
 
         try:
             db.session.commit()
-            flash("Task has been updated")
+            flash("Task has been updated", "info")
             return redirect(url_for("index"))
         except Exception as e:
             db.session.rollback()
@@ -171,7 +171,7 @@ def update(id):
 @login_required
 def delete(id):
     task_to_delete = Todo.query.filter_by(id=id, user_id=current_user.id).first_or_404()
-    flash("Task has been deleted")
+    flash("Task has been deleted", "danger")
     try:
         db.session.delete(task_to_delete)
         db.session.commit()
@@ -188,7 +188,7 @@ def complete(id):
 
     task.completed = 1
     db.session.commit()
-    flash("Task has been marked complete")
+    flash("Task has been marked complete", "info")
     return redirect(url_for("index"))
 
 
@@ -200,7 +200,7 @@ def unmark(id):
 
     unmark_task.completed = 0
     db.session.commit()
-    flash("Task has been marked as incomplete")
+    flash("Task has been marked as incomplete", "danger")
     return redirect(url_for("index"))
 
 
