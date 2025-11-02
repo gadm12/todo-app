@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block head %}
+<h1 style="text-align:center">Welcome To the todo app</h1>
+{% endblock %}
+{% block title %}Sign-up{% endblock %}
+
+
+{% block content %}
+<form method="POST">
+    <h3 align="center">Sign-up</h3>
+    <div class="form-group">
+        <label for="email">Email Address</label>
+        <input 
+        type="email"
+        class="form-control" 
+        id="email" 
+        name="email" 
+        placeholder="Enter email">
+    
+    <div class="form-group">
+        <label for="username">User Name</label>
+        <input 
+        type="text"
+        class="from-control" 
+        id="username" 
+        name="username" 
+        placeholder="Enter a user name">
+    
+    <div class="form-group">
+        <label for="password_hash">Enter a password</label>
+        <input 
+        type="password"
+        class="form-control" 
+        id="password" 
+        name="password" 
+        placeholder="Enter a password">
+
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create account</button>
+</form>
+
+
+{% endblock %}

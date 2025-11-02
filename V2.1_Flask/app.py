@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
-from flask_login import LoginManager, UserMixin
-from models  import db, Todo 
+from flask_bcrypt import Bcrypt
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user 
+from models  import db, User, Todo 
 from datetime import datetime
 
 
@@ -11,11 +12,72 @@ app.secret_key = "windows"
 # Configure database
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///tasks.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config['SECRET_KEY'] = "doors"
 
 # Initialize db with this Flask app
 db.init_app(app)
+bcrypt = Bcrypt(app)
+login_manager = LoginManager(app)
+login_manager.login_view= "login"
+login_manager.login_message_category = "info"
 
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+@app.route("/register", methods=["POST", "GET"])
+def register():
+    
+    if request.method == "POST":
+        username = request.form["username"]
+        email= request.form["email"]
+        password = request.form["password"]
+        
+        hashed_pw = bcrypt.generate_password_hash(password).decode("utf-8")
+        
+        new_user= User(username=username, email=email, password_hash=hashed_pw)
+        db.session.add(new_user)
+        db.session.commit()
+        
+        flash("Account created! You can now log in.","success")
+        
+        return redirect(url_for("login"))
+    
+    return render_template("register.html")
+
+@app.route("/login", methods=["POST", "GET"])
+def login():
+    
+    if request.method == "POST":
+        
+        email = request.form["email"]
+        password = request.form["password"]
+        
+        user = User.query.filter_by(email=email).first()
+        
+        if user and bcrypt.check_password_hash(user.password_hash, password):
+            login_user(user)
+            flash("Login successful!", "success")
+            return redirect(url_for("index"))
+        
+        else:
+            flash("Login failed. Check email and password.", "danger")
+            
+    return render_template("login.html")
+
+@app.route("/logout")
+@login_required
+def logout():
+    
+    logout_user()
+    flash("You have been logged out.", "info")
+    return redirect(url_for("login"))
+
+        
+        
+        
 @app.route("/", methods=["POST", "GET"])
+@login_required
 def index():
     current_time = datetime.now().strftime("%A, %B %d, %Y - %I:%M %p")
     if request.method == "POST":
@@ -30,7 +92,7 @@ def index():
         else:
             due_date = None
         
-        new_task = Todo(content=task_content, due=due_date)
+        new_task = Todo(content=task_content, due=due_date, user_id=current_user.id)
         
         try:
             db.session.add(new_task)
@@ -39,12 +101,13 @@ def index():
             return redirect(url_for("index"))
         except Exception as e:
             print(f"Error adding task: {e}")
-            return "There was an issue adding your task"
+            flash("There was an issue adding your task")
+            return redirect(url_for("index"))
     else:
         sort = request.args.get("sort", "created")
         order = request.args.get("order","asc")
         
-        query = Todo.query
+        query = Todo.query.filter_by(user_id=current_user.id)
 
         if sort == "due":
             query = Todo.query.order_by(Todo.due.desc() if order == "desc" else Todo.due.asc())
@@ -60,7 +123,7 @@ def index():
 @app.route("/update/<int:id>", methods=["POST", "GET"])
 def update(id):
     
-    task = Todo.query.get_or_404(id)
+    task = Todo.query.filter_by(id=id, user_id=current_user.id).first_or_404()
     
     if request.method == "POST":
         task.content = request.form["content"]
@@ -85,7 +148,7 @@ def update(id):
 
 @app.route("/delete/<int:id>")
 def delete(id):
-    task_to_delete = Todo.query.get_or_404(id)
+    task_to_delete = Todo.query.filter_by(id=id, user_id=current_user.id).first_or_404()
     flash("Task has been deleted")
     try:
         db.session.delete(task_to_delete)
@@ -94,15 +157,11 @@ def delete(id):
     except Exception as e:
         return f"Error deleting task: {e}"
     
-    
-
-    
-
-    
+      
 @app.route("/complete/<int:id>")
 def complete(id):
     
-    task=Todo.query.get_or_404(id)
+    task=Todo.query.filter_by(id=id, user_id=current_user.id).first_or_404()
     
     
     task.completed=1
@@ -110,10 +169,11 @@ def complete(id):
     flash("Task has been marked complete")
     return redirect(url_for("index"))
 
+
 @app.route("/unmark/<int:id>")
 def unmark(id):
     
-    unmark_task = Todo.query.get_or_404(id)
+    unmark_task = Todo.query.filter_by(id=id, user_id=current_user.id).first_or_404()
     
     unmark_task.completed = 0
     db.session.commit()
