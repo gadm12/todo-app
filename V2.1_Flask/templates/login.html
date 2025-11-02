@@ -3,29 +3,40 @@
 {% block title %}Login{% endblock %}
 
 {% block content %}
-<form method="POST">
-    <h3 align="center">Login</h3>
-    
+<div class="login-container">
+  <h2>Login</h2>
+  <form method="POST">
     <div class="form-group">
-        <label for="email">Email</label>
-        <input 
+      <label for="email">Email</label>
+      <input 
         type="email"
-        class="form-control"
         id="email"
         name="email"
-        placeholder="Enter email">
+        placeholder="Enter email"
+        required>
     </div>
 
     <div class="form-group">
-        <label for="password">Password</label>
-        <input 
+      <label for="password">Password</label>
+      <input 
         type="password"
-        class="form-control"
         id="password"
         name="password"
-        placeholder="Enter password">
+        placeholder="Enter password"
+        required>
     </div>
 
-    <button type="submit" class="btn btn-primary">Login</button>
-</form>
+    <button type="submit" class="btn-login">Login</button>
+  </form>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-container">
+        {% for category, message in messages %}
+          <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+</div>
 {% endblock %}

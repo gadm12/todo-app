@@ -1,45 +1,52 @@
 {% extends "base.html" %}
 
-{% block head %}
-<h1 style="text-align:center">Welcome To the todo app</h1>
-{% endblock %}
 {% block title %}Sign-up{% endblock %}
 
-
 {% block content %}
-<form method="POST">
-    <h3 align="center">Sign-up</h3>
+<div class="register-container">
+  <h2>Create an Account</h2>
+  <form method="POST">
     <div class="form-group">
-        <label for="email">Email Address</label>
-        <input 
+      <label for="email">Email Address</label>
+      <input 
         type="email"
-        class="form-control" 
-        id="email" 
-        name="email" 
-        placeholder="Enter email">
-    
-    <div class="form-group">
-        <label for="username">User Name</label>
-        <input 
-        type="text"
-        class="from-control" 
-        id="username" 
-        name="username" 
-        placeholder="Enter a user name">
-    
-    <div class="form-group">
-        <label for="password_hash">Enter a password</label>
-        <input 
-        type="password"
-        class="form-control" 
-        id="password" 
-        name="password" 
-        placeholder="Enter a password">
-
+        id="email"
+        name="email"
+        placeholder="Enter email"
+        required>
     </div>
 
-    <button type="submit" class="btn btn-primary">Create account</button>
-</form>
+    <div class="form-group">
+      <label for="username">Username</label>
+      <input 
+        type="text"
+        id="username"
+        name="username"
+        placeholder="Enter username"
+        required>
+    </div>
 
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input 
+        type="password"
+        id="password"
+        name="password"
+        placeholder="Enter password"
+        required>
+    </div>
 
+    <button type="submit" class="btn-register">Create Account</button>
+  </form>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-container">
+        {% for category, message in messages %}
+          <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+</div>
 {% endblock %}

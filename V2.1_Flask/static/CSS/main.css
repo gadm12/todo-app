@@ -257,3 +257,271 @@ th a:hover .sort-indicator {
     font-size: 0.8em;
   }
 
+  body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background-color: #f5f6f7;
+  color: #333;
+}
+/* ===== NAVBAR (Matching Purple Theme) ===== */
+nav {
+  background-color: #2a003f; /* deep purple/navy tone */
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.navbar-brand {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #c08cff; /* softer purple accent */
+  text-decoration: none;
+}
+
+.navbar-brand:hover {
+  color: #e0b3ff;
+}
+
+.nav-left a,
+.nav-right a {
+  color: #f4f4f4;
+  text-decoration: none;
+  margin-right: 1rem;
+  font-weight: 500;
+  transition: color 0.2s, transform 0.1s;
+}
+
+.nav-left a:hover,
+.nav-right a:hover {
+  color: #bb86fc; /* bright purple accent */
+  transform: scale(1.05);
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+}
+
+.nav-user {
+  margin-left: 1rem;
+  font-style: italic;
+  color: #d1c4e9; /* light purple-gray */
+}
+
+@media (max-width: 768px) {
+  nav {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1rem;
+  }
+
+  .nav-right {
+    flex-wrap: wrap;
+    margin-top: 0.5rem;
+  }
+
+  .nav-left a,
+  .nav-right a {
+    margin: 0.3rem 0.75rem 0 0;
+  }
+}
+
+/* ===== Login Page ===== */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f5f6f7;
+}
+
+.login-container {
+  background: white;
+  padding: 40px 35px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-width: 380px;
+  margin: 80px auto;
+  text-align: center;
+}
+
+.login-container h2 {
+  margin-bottom: 25px;
+  font-size: 1.8em;
+  color: #2a003f; /* deep purple */
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  margin-bottom: 15px;
+}
+
+label {
+  font-size: 0.95em;
+  color: #333;
+  margin-bottom: 6px;
+}
+
+input[type="email"],
+input[type="password"] {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1em;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input[type="email"]:focus,
+input[type="password"]:focus {
+  border-color: #7a00cc;
+  box-shadow: 0 0 5px rgba(122, 0, 204, 0.3);
+  outline: none;
+}
+
+.btn-login {
+  width: 100%;
+  padding: 10px;
+  background-color: #7a00cc;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.btn-login:hover {
+  background-color: #5b0099;
+  transform: scale(1.03);
+}
+
+
+.flash-container {
+  margin-top: 15px;
+}
+
+.flash {
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 0.9em;
+  margin-top: 10px;
+}
+
+.flash.success {
+  background-color: #d1e7dd;
+  color: #0f5132;
+}
+
+.flash.danger {
+  background-color: #f8d7da;
+  color: #842029;
+}
+
+.flash.info {
+  background-color: #cff4fc;
+  color: #055160;
+}
+
+/* ===== Register Page ===== */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f5f6f7;
+}
+
+.register-container {
+  background: white;
+  padding: 40px 35px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-width: 400px;
+  margin: 80px auto;
+  text-align: center;
+}
+
+.register-container h2 {
+  margin-bottom: 25px;
+  font-size: 1.8em;
+  color: #2a003f;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  margin-bottom: 15px;
+}
+
+label {
+  font-size: 0.95em;
+  color: #333;
+  margin-bottom: 6px;
+}
+
+input[type="email"],
+input[type="text"],
+input[type="password"] {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1em;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input:focus {
+  border-color: #7a00cc;
+  box-shadow: 0 0 5px rgba(122, 0, 204, 0.3);
+  outline: none;
+}
+
+.btn-register {
+  width: 100%;
+  padding: 10px;
+  background-color: #7a00cc;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.btn-register:hover {
+  background-color: #5b0099;
+  transform: scale(1.03);
+}
+
+
+.flash-container {
+  margin-top: 15px;
+}
+
+.flash {
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 0.9em;
+  margin-top: 10px;
+}
+
+.flash.success {
+  background-color: #d1e7dd;
+  color: #0f5132;
+}
+
+.flash.danger {
+  background-color: #f8d7da;
+  color: #842029;
+}
+
+.flash.info {
+  background-color: #cff4fc;
+  color: #055160;
+}
