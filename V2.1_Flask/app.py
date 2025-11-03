@@ -38,9 +38,14 @@ def register():
         username = request.form["username"]
         email = request.form["email"]
         password = request.form["password"]
+        
 
         if not username or not email or not password:
             flash("All fields are required. Please try again.", "danger")
+            return render_template("register.html")
+        
+        if len(password) < 8:
+            flash("Password must be at least 8 characters long.", "danger")
             return render_template("register.html")
 
         existing_user_email = User.query.filter_by(email=email).first()
