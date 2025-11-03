@@ -1,37 +1,31 @@
-{% extends "base.html"%}
+{% extends "base.html"%} {% block head %}
+<h1 style="text-align: center">Welcome To the todo app</h1>
+{% endblock %} {% block content %}
 
-    {% block head %}
-        <h1 style="text-align:center">Welcome To the todo app</h1>
-    {% endblock %}
+<div class="content">
+  <h1 style="text-align: center">Update Task</h1>
 
-    {% block content %}
+  <form method="POST">
+    <label for="content">Task:</label>
+    <input
+      type="text"
+      name="content"
+      id="content"
+      value="{{ task.content }}"
+      required
+    />
+    <!-- ^required means the browser won’t let the user submit the form if this field is empty.-->
 
-    <div class="content">
-        <h1 style="text-align:center">Update Task</h1>
-        
-       
+    <label for="due">Due Date:</label>
+    <input
+      type="date"
+      name="due"
+      id="due"
+      value="{{ task.due.strftime('%Y-%m-%d') if task.due else '' }}"
+    />
 
-            <form method="POST">
-                <label for="content">Task:</label>
-                    <input 
-                        type="text" 
-                        name="content" 
-                        id="content" 
-                        value="{{ task.content }}" 
-                        required 
-                    >
-                        <!-- ^required means the browser won’t let the user submit the form if this field is empty.-->
+    <input type="submit" value="Update Task" />
+  </form>
 
-                <label for="due">Due Date:</label>
-                    <input 
-                        type="date" 
-                        name="due" 
-                        id="due" 
-                        value="{{ task.due.strftime('%Y-%m-%d') if task.due else '' }}"
-                    >
-
-  <input type="submit" value="Update Task">
-</form>
-    
-    
-    {% endblock %}
+  {% endblock %}
+</div>

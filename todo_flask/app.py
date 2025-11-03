@@ -9,14 +9,19 @@ from flask_login import (
 )
 from models import db, User, Todo
 from datetime import datetime
+import os
+from werkzeug.utils import secure_filename
 
 
 app = Flask(__name__)
+
 
 # Configure database
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///tasks.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SECRET_KEY"] = "doors"
+app.config["UPLOAD_FOLDER"] = "todo_flask/uploads"
+app.config["ALLOWED_EXTENSIONS"] = {"png", "jpg", "jpeg", "gif"}
 
 # Initialize db with this Flask app
 db.init_app(app)
@@ -38,12 +43,11 @@ def register():
         username = request.form["username"]
         email = request.form["email"]
         password = request.form["password"]
-        
 
         if not username or not email or not password:
             flash("All fields are required. Please try again.", "danger")
             return render_template("register.html")
-        
+
         if len(password) < 8:
             flash("Password must be at least 8 characters long.", "danger")
             return render_template("register.html")
@@ -108,6 +112,16 @@ def index():
     if request.method == "POST":
         task_content = request.form["content"].strip()
         due_date_str = request.form.get("due")
+
+        if "screenshot" in request.files:
+            file = request.files["screenshot"]
+
+            if file.filename != "":
+                save_path = os.path.join(app.config["UPLOAD_FOLDER"], file.filename)
+                file.save(save_path)
+
+            flash(f"File '{file.filename}' uploaded successfully!", "success")
+
         if not task_content:
             flash("Task cannot be empty!")
             return redirect(url_for("index"))
@@ -135,14 +149,22 @@ def index():
         query = Todo.query.filter_by(user_id=current_user.id)
 
         if sort == "due":
-            query = query.order_by(Todo.due.desc() if order == "desc" else Todo.due.asc())
+            query = query.order_by(
+                Todo.due.desc() if order == "desc" else Todo.due.asc()
+            )
         elif sort == "completed":
-            query = query.order_by(Todo.completed.desc() if order == "desc" else Todo.completed.asc())
+            query = query.order_by(
+                Todo.completed.desc() if order == "desc" else Todo.completed.asc()
+            )
         else:
-            query = query.order_by(Todo.date_created.desc() if order == "desc" else Todo.date_created.asc())
-        
-        tasks = query.all() 
-        return render_template("index.html", tasks=tasks, sort=sort, order=order ,current_time=current_time)
+            query = query.order_by(
+                Todo.date_created.desc() if order == "desc" else Todo.date_created.asc()
+            )
+
+        tasks = query.all()
+        return render_template(
+            "index.html", tasks=tasks, sort=sort, order=order, current_time=current_time
+        )
 
 
 @app.route("/update/<int:id>", methods=["POST", "GET"])

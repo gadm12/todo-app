@@ -1,130 +1,128 @@
-{% extends "base.html"%}
+{% extends "base.html"%} {% block head %}
 
-    {% block head %}
+<h1 style="text-align: center">Welcome To the todo app</h1>
 
-        <h1 style="text-align:center">Welcome To the todo app</h1>
+{% endblock %} {% block content %} {% with messages =
+get_flashed_messages(with_categories=true) %} {% if messages %}
+<div class="flash-container">
+  {% for category, message in messages %}
+  <div class="flash {{ category }}">{{ message }}</div>
+  {% endfor %}
+</div>
+{% endif %} {% endwith %}
 
-    {% endblock %}
+<div class="table-container">
+  <h1 style="text-align: center">Task Master</h1>
+  <p style="text-align: left; color: rgb(127, 20, 228); font-size: 0.9em">
+    {{ current_time }}
+  </p>
 
-    {% block content %}
+  {% if tasks|length < 1 %}
+  <h4 style="text-align: center">There is no tasks yet</h4>
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    <div class="flash-container">
-      {% for category, message in messages %}
-        <div class="flash {{ category }}">{{ message }}</div>
-      {% endfor %}
-    </div>
-  {% endif %}
-{% endwith %}
+  {% else %}
 
-    
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>
+          <a
+            href="{{ url_for('index', sort='content', order='desc' if sort == 'content' and order == 'asc' else 'asc') }}"
+            class="sortable {% if sort == 'content' %}{{ order }}{% endif %}"
+          >
+            Task
+          </a>
+        </th>
+        <th>
+          <a
+            href="{{ url_for('index', sort='date_created', order='desc' if sort == 'date_created' and order == 'asc' else 'asc') }}"
+            class="sortable {% if sort == 'date_created' %}{{ order }}{% endif %}"
+          >
+            Added
+          </a>
+        </th>
+        <th>
+          <a
+            href="{{ url_for('index', sort='due', order='desc' if sort == 'due' and order == 'asc' else 'asc') }}"
+            class="sortable {% if sort == 'due' %}{{ order }}{% endif %}"
+          >
+            Due
+          </a>
+        </th>
+        <th>
+          <a
+            href="{{ url_for('index', sort='completed', order='desc' if sort == 'completed' and order == 'asc' else 'asc') }}"
+            class="sortable {% if sort == 'completed' %}{{ order }}{% endif %}"
+          >
+            Status
+          </a>
+        </th>
+        <th>Mark</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
 
+    {% for task in tasks %}
 
-    <div class="table-container">
-        <h1 style="text-align:center">Task Master</h1>
-        <p style="text-align:left; color: rgb(127, 20, 228); font-size: 0.9em;">
-            {{ current_time }}
+    <tr>
+      <td>{{loop.index}}</td>
+      <td>
+        {% if task.completed %} ✅ <s>{{ task.content }}</s>
+        {% else %} 🕓 {{ task.content }} {% endif %}
+      </td>
 
-            
-        </p>
-        
-        
-        {% if tasks|length < 1 %}
-        <h4 style="text-align:center">There is no tasks yet</h4>
+      <td>{{task.date_created.date()}}</td>
+      <td>{{task.due if task.due else '—'}}</td>
 
+      <td>{% if task.completed %} Done {% else %} Pending {% endif %}</td>
+      <td>
+        {% if not task.completed %}
+        <a href="/complete/{{task.id}}" class="btn btn-complete"
+          >✅ Mark Complete</a
+        >
         {% else %}
-
-            <table>
-                <thead>
-                <tr>
-                    
-                    <th>#</th>
-                    <th>
-                    <a href="{{ url_for('index', sort='content', order='desc' if sort == 'content' and order == 'asc' else 'asc') }}"
-                        class="sortable {% if sort == 'content' %}{{ order }}{% endif %}">
-                        Task
-                    </a>
-                    </th>
-                    <th>
-                    <a href="{{ url_for('index', sort='date_created', order='desc' if sort == 'date_created' and order == 'asc' else 'asc') }}"
-                        class="sortable {% if sort == 'date_created' %}{{ order }}{% endif %}">
-                        Added
-                    </a>
-                    </th>
-                    <th>
-                    <a href="{{ url_for('index', sort='due', order='desc' if sort == 'due' and order == 'asc' else 'asc') }}"
-                        class="sortable {% if sort == 'due' %}{{ order }}{% endif %}">
-                        Due
-                    </a>
-                    </th>
-                    <th>
-                    <a href="{{ url_for('index', sort='completed', order='desc' if sort == 'completed' and order == 'asc' else 'asc') }}"
-                        class="sortable {% if sort == 'completed' %}{{ order }}{% endif %}">
-                        Status
-                    </a>
-                    </th>
-                    <th>Mark</th>
-                    <th>Actions</th>
-                </tr>
-                </thead>
-
-
-                {% for task in tasks %}
-
-                    <tr>
-                        <td>{{loop.index}}</td>
-                        <td> 
-
-                            {% if task.completed %}
-                                ✅ <s>{{ task.content }}</s>
-                            {% else %}
-                                🕓 {{ task.content }}
-                            {% endif %}
-
-                        </td>
-
-                        <td> {{task.date_created.date()}} </td>
-                        <td>{{task.due if task.due else '—'}}</td>
-
-                        <td>
-                            {% if task.completed %}
-                                Done
-                            {% else %}
-                                Pending
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if not task.completed %}
-                                <a href="/complete/{{task.id}}" class="btn btn-complete">✅ Mark Complete</a>
-                            {% else %}
-                                <a href="/unmark/{{task.id}}" class="btn btn-unmark">↩️ Unmark</a>
-                            {% endif %}
-                        <td>
-                            <a href="/delete/{{task.id}}">Delete</a>
-                            <br>
-                            <br>
-                            <a href="/update/{{task.id}}">Update</a>
-                        </td>
-                    </tr>
-                
-                {% endfor %}
-            
+        <a href="/unmark/{{task.id}}" class="btn btn-unmark">↩️ Unmark</a>
         {% endif %}
+      </td>
 
-        </table>
+      <td>
+        <a href="/delete/{{task.id}}">Delete</a>
+        <br />
+        <br />
+        <a href="/update/{{task.id}}">Update</a>
+      </td>
+    </tr>
 
-        <form action="/" method="POST">
-            <input type="text" name="content" id="content" placeholder="Enter your task">
-            <input type="date" name="due" id="due">
-            <input type="submit" value="Add Task">
-        </form>
-        
-    </div>
+    {% endfor %} {% endif %}
+  </table>
+
+  <form action="/" method="POST" enctype="multipart/form-data">
     
+    <label for="content">Task:</label>
+    <input type="text" name="content" id="content" placeholder="Enter your task">
     
-    {% endblock %}
+    <label for="due">Due Date:</label>
+    <input type="date" name="due" id="due">
+
+    <label for="screenshot">Schedule Screenshot:</label>
+    <input type="file" name="screenshot" id="screenshot">
+
+    <input type="submit" value="Add Task">
+
+  <!-- <form action="/" method="POST">
+    <input
+      type="text"
+      name="content"
+      id="content"
+      placeholder="Enter your task"
+    />
+    <input type="date" name="due" id="due" />
+    <input type="submit" value="Add Task" />
+  </form> -->
+</div>
+
+{% endblock %}
 
 <!-- to insert an img -->
 <!-- <image src="{{url_for('static',filename='images/img001.png')}}"> -->
-
