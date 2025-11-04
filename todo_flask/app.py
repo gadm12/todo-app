@@ -11,6 +11,10 @@ from models import db, User, Todo
 from datetime import datetime
 import os
 from werkzeug.utils import secure_filename
+import pytesseract
+import cv2
+
+pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
 
 app = Flask(__name__)
@@ -20,7 +24,7 @@ app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///tasks.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SECRET_KEY"] = "doors"
-app.config["UPLOAD_FOLDER"] = "todo_flask/uploads"
+app.config["UPLOAD_FOLDER"] = "uploads"
 app.config["ALLOWED_EXTENSIONS"] = {"png", "jpg", "jpeg", "gif"}
 
 # Initialize db with this Flask app
@@ -116,32 +120,49 @@ def index():
         if "screenshot" in request.files:
             file = request.files["screenshot"]
 
-            if file.filename != "":
-                save_path = os.path.join(app.config["UPLOAD_FOLDER"], file.filename)
+            if file and file.filename != "":
+                filename = secure_filename(file.filename)
+                os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
+                save_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
                 file.save(save_path)
 
-            flash(f"File '{file.filename}' uploaded successfully!", "success")
+                img = cv2.imread(save_path)
 
-        if not task_content:
-            flash("Task cannot be empty!")
-            return redirect(url_for("index"))
+                gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-        if due_date_str:
-            due_date = datetime.strptime(due_date_str, "%Y-%m-%d").date()
-        else:
-            due_date = None
+                extracted_text = pytesseract.image_to_string(gray_img)
 
-        new_task = Todo(content=task_content, due=due_date, user_id=current_user.id)
+                print("--- OCR TEXT ---")
+                print(extracted_text)
+                print("------------------")
 
-        try:
-            db.session.add(new_task)
-            db.session.commit()
-            flash("Task added successfully", "success")
-            return redirect(url_for("index"))
-        except Exception as e:
-            print(f"Error adding task: {e}")
-            flash("There was an issue adding your task", "danger")
-            return redirect(url_for("index"))
+                flash(f"File '{filename}' processed!", "success")
+                return redirect(url_for("index"))
+
+            # if not task_content:
+            #     flash("Task cannot be empty!")
+            #     return redirect(url_for("index"))
+
+        if task_content:
+            if due_date_str:
+                due_date = datetime.strptime(due_date_str, "%Y-%m-%d").date()
+            else:
+                due_date = None
+
+            new_task = Todo(content=task_content, due=due_date, user_id=current_user.id)
+
+            try:
+                db.session.add(new_task)
+                db.session.commit()
+                flash("Task added successfully", "success")
+                return redirect(url_for("index"))
+            except Exception as e:
+                print(f"Error adding task: {e}")
+                flash("There was an issue adding your task", "danger")
+                return redirect(url_for("index"))
+
+        flash("Please add a task or upload a file.", "danger")
+        return redirect(url_for("index"))
     else:
         sort = request.args.get("sort", "created")
         order = request.args.get("order", "asc")
