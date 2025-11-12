@@ -11,10 +11,6 @@ from models import db, User, Todo
 from datetime import datetime
 import os
 from werkzeug.utils import secure_filename
-import pytesseract
-import cv2
-
-pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
 
 app = Flask(__name__)
@@ -125,16 +121,6 @@ def index():
                 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
                 save_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
                 file.save(save_path)
-
-                img = cv2.imread(save_path)
-
-                gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-                extracted_text = pytesseract.image_to_string(gray_img)
-
-                print("--- OCR TEXT ---")
-                print(extracted_text)
-                print("------------------")
 
                 flash(f"File '{filename}' processed!", "success")
                 return redirect(url_for("index"))
