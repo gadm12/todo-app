@@ -98,28 +98,24 @@ get_flashed_messages(with_categories=true) %} {% if messages %}
   </table>
 
   <form action="/" method="POST" enctype="multipart/form-data">
-    
     <label for="content">Task:</label>
-    <input type="text" name="content" id="content" placeholder="Enter your task">
-    
-    <label for="due">Due Date:</label>
-    <input type="date" name="due" id="due">
-
-    <label for="screenshot">Schedule Screenshot:</label>
-    <input type="file" name="screenshot" id="screenshot">
-
-    <input type="submit" value="Add Task">
-
-  <!-- <form action="/" method="POST">
     <input
       type="text"
       name="content"
       id="content"
       placeholder="Enter your task"
     />
+    <label for="due">Due Date:</label>
     <input type="date" name="due" id="due" />
-    <input type="submit" value="Add Task" />
-  </form> -->
+
+    <label for="screenshot">Schedule Screenshot:</label>
+    <input type="file" name="screenshot" id="screenshot" />
+
+    <label for="start_date">Schedule Start Date:</label>
+    <input type="date" name="schedule_start_date" id="start_date" />
+
+    <input type="submit" value="Add Task / Process Schedule" />
+  </form>
 </div>
 
 {% endblock %}

@@ -11,7 +11,7 @@ from models import db, User, Todo
 from datetime import datetime
 import os
 from werkzeug.utils import secure_filename
-
+from parser import ScheduleParser
 
 app = Flask(__name__)
 
@@ -29,6 +29,10 @@ bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
 login_manager.login_message_category = "info"
+
+print("Loading OCR model (this may take a moment)...")
+schedule_parser = ScheduleParser()
+print("OCR Model loaded. Starting server.")
 
 
 @login_manager.user_loader
@@ -109,27 +113,41 @@ def logout():
 @login_required
 def index():
     current_time = datetime.now().strftime("%A, %B %d, %Y - %I:%M %p")
+
     if request.method == "POST":
+        # --- Get ALL potential form data ---
         task_content = request.form["content"].strip()
         due_date_str = request.form.get("due")
+        file = request.files.get("screenshot")
+        start_date_str = request.form.get("schedule_start_date")
 
-        if "screenshot" in request.files:
-            file = request.files["screenshot"]
+        if file and file.filename != "" and start_date_str:
 
-            if file and file.filename != "":
-                filename = secure_filename(file.filename)
-                os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
-                save_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-                file.save(save_path)
+            filename = secure_filename(file.filename)
+            os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
+            save_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+            file.save(save_path)
 
-                flash(f"File '{filename}' processed!", "success")
-                return redirect(url_for("index"))
+            try:
+                print(f"Parsing file: {save_path}")
 
-            # if not task_content:
-            #     flash("Task cannot be empty!")
-            #     return redirect(url_for("index"))
+                parsed_schedule = schedule_parser.parse_schedule(save_path, debug=True)
 
-        if task_content:
+                print("--- PARSED SCHEDULE ---")
+                print(parsed_schedule)
+                print("-----------------------")
+
+                flash(
+                    "Schedule parsed successfully! (Check terminal for output)",
+                    "success",
+                )
+
+            except Exception as e:
+                flash(f"Error parsing image: {e}", "danger")
+
+            return redirect(url_for("index"))
+
+        elif task_content:
             if due_date_str:
                 due_date = datetime.strptime(due_date_str, "%Y-%m-%d").date()
             else:
@@ -141,14 +159,16 @@ def index():
                 db.session.add(new_task)
                 db.session.commit()
                 flash("Task added successfully", "success")
-                return redirect(url_for("index"))
             except Exception as e:
                 print(f"Error adding task: {e}")
                 flash("There was an issue adding your task", "danger")
-                return redirect(url_for("index"))
 
-        flash("Please add a task or upload a file.", "danger")
-        return redirect(url_for("index"))
+            return redirect(url_for("index"))
+
+        else:
+            flash("Please add a task or upload a file with its start date.", "danger")
+            return redirect(url_for("index"))
+
     else:
         sort = request.args.get("sort", "created")
         order = request.args.get("order", "asc")
