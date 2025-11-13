@@ -1,55 +1,88 @@
-## To-Do App (v3.0 Flask)
+## To-Do App (v2.3 Flask)
 
-- A modern, secure To-Do web application built with Flask — featuring user registration, login, password hashing, personal task management, and now image upload with OCR (text extraction).
+- A modern, secure To-Do web application built with Flask — featuring user registration, login, password hashing, personal task management, and now **image upload + OCR schedule extraction** powered by EasyOCR and OpenCV.
 
 ---
 
 ## What's New in v2.3
 
-- This version builds on v2.2 with the addition of:
+- This version builds on v2.2 with major new functionality:
 
-  - Image Uploads — users can upload screenshots of their schedules.
-  - OCR Integration — the app uses Tesseract OCR to extract text from uploaded images.
-  - Temporary File Storage — uploaded images are saved in a secure uploads/ directory.
-  - Improved Access Control — uploads and tasks are linked to each logged-in user.
-  - Enhanced Flash Messages — consistent design and categorized alerts (success, danger, info).
+### **Image Uploads**
+
+- Users can upload screenshots of their weekly work schedules.
+
+### **OCR Integration (EasyOCR + OpenCV)**
+
+- Uploaded images are processed using:
+  - **EasyOCR** for text extraction
+  - **OpenCV** for preprocessing, thresholding, and layout detection
+  - Automatic row + column grouping
+  - Smart day/time detection for schedules
+
+### **Temporary Upload Handling**
+
+- Images are saved to an `uploads/` directory using secure filenames.
+
+### **Improved Access Control**
+
+- Uploads and parsing are only available to logged-in users.
+
+### 💬 **Better Flash Messages**
+
+- Unified styling across login, register, and dashboard pages.
 
 ---
 
 ## Features
 
-- User Accounts
-  - Register, log in, and log out securely
-  - Passwords hashed with Flask-Bcrypt
-  - Each user has their own private to-do list
-- Task Management
-  - Add, update, delete tasks
-  - Mark and unmark tasks as complete
-  - Set optional due dates
-  - Flash messages for user actions
-  - Task sorting by:
-    - Created date
-    - Due date
-    - Completion status
-- Image Upload & OCR
-  - Upload a screenshot of your schedule or notes
-  - Extract text using pytesseract and OpenCV
-  - Output is processed and displayed via flash messages
-  - Supports file types: .png, .jpg, .jpeg, .gif
-- Interface
-  - Responsive layout with a clean, minimal UI
-  - Displays both added and due dates
-  - Supports ascending/descending sorting
+### User Accounts
+
+- Secure registration and login
+- Password hashing using Flask-Bcrypt
+- Each user has a personal to-do list
+- Session-based authentication (Flask-Login)
+
+### Task Management
+
+- Add, update, delete tasks
+- Mark complete / unmark complete
+- Optional due dates
+- Sorting by:
+  - Date created
+  - Due date
+  - Completion status
+- Clean UI + categorized flash messages
+
+### Image Upload + OCR Parsing (NEW)
+
+- Upload schedule screenshots (`.png`, `.jpg`, `.jpeg`, `.gif`)
+- Automatic detection of:
+  - Days of the week
+  - Time ranges
+  - “Not Scheduled” indicators
+- Full preprocessing pipeline:
+  - Grayscale + thresholding
+  - Region detection
+  - Row grouping
+- Parsed schedule printed to terminal for now
+
+### Interface
+
+- Clean, modern, responsive layout
+- Consistent alert styling across pages
+- Welcome banner + navbar UI improvements
 
 ---
 
 ## Tech Stack
 
-- Backend: Python 3, Flask
-- Database: SQLite (via SQLAlchemy ORM)
-- Auth: Flask-Login, Flask-Bcrypt
-- OCR & Image Processing: pytesseract, OpenCV
-- Frontend: HTML + Jinja2 Templates, CSS
+- **Backend:** Python 3, Flask
+- **Database:** SQLite (SQLAlchemy ORM)
+- **Authentication:** Flask-Login, Flask-Bcrypt
+- **OCR Engine:** EasyOCR
+- **Image Processing:** OpenCV (cv2)
+- **Frontend:** HTML + Jinja2, CSS
 
 ---
 
@@ -72,20 +105,11 @@
 3. Install dependencies
 
    ```bash
-   pip install flask flask_sqlalchemy flask_bcrypt flask_login pytesseract opencv-python
+   pip install flask flask_sqlalchemy flask_bcrypt flask_login easyocr opencv-python
 
    ```
 
-4. Configure Tesseract Path
-
-- Ensure you have Tesseract OCR installed.
-- If using Windows, verify this path exists or update it in app.py:
-
-  ```bash
-  pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-  ```
-
-5. Initialize or upgrade the database
+4. Initialize or upgrade the database
 
    ```bash
    flask shell
@@ -95,7 +119,7 @@
    >>> exit()
    ```
 
-6. Run the app
+5. Run the app
 
    ```bash
    python app.py
@@ -107,11 +131,12 @@ Then open your browser at: http://127.0.0.1:5000/
 
 ## Future Plans
 
-- Display extracted OCR text in the UI
-- Automatically convert recognized text into tasks
-- Highlight overdue tasks
-- Password reset and profile management
-- Cloud deployment (Render, Railway, or Fly.io)
+- Display parsed OCR schedules directly in the dashboard
+- Auto-convert schedule times into tasks
+- Highlight overdue tasks visually
+- Password reset feature
+- User profile settings
+- Deploy to Render, Railway, Fly.io, or Docker image
 
 ---
 
@@ -123,7 +148,7 @@ This project is open-source and available under the MIT License.
 
 ## Version
 
-**v3.0 — Flask with Authentication, Image Uploads, and OCR Integration**
+**v2.3 — Flask with Authentication, Image Uploads, and OCR Integration**
 
 ---
 
