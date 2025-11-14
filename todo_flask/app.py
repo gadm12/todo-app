@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, send_file
 from flask_bcrypt import Bcrypt
 from flask_login import (
     LoginManager,
@@ -8,8 +8,11 @@ from flask_login import (
     current_user,
 )
 from models import db, User, Todo, Schedule
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
+import io
+import re
+from ics import Calendar, Event
 from werkzeug.utils import secure_filename
 from parser import ScheduleParser
 
@@ -205,30 +208,79 @@ def index():
         )
 
 
-# @app.route("/schedule/<int:schedule_id>")
-# @login_required
-# def view_schedule(schedule_id):
+@app.route("/schedule/<int:schedule_id>")
+@login_required
+def view_schedule(schedule_id):
 
-#     schedule = Schedule.query.filter_by(
-#         id=schedule_id, user_id=current_user.id
-#     ).first_or_404()
+    schedule = Schedule.query.filter_by(
+        id=schedule_id, user_id=current_user.id
+    ).first_or_404()
 
-#     days_order = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    days_order = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 
-#     return render_template(
-#         "view_schedule.html", schedule=schedule, days_order=days_order
-#     )
+    return render_template(
+        "view_schedule.html", schedule=schedule, days_order=days_order
+    )
 
 
 @app.route("/schedule/<int:schedule_id>/export")
 @login_required
 def export_ics(schedule_id):
-    """Export schedule as .ics calendar file"""
     schedule = Schedule.query.filter_by(
         id=schedule_id, user_id=current_user.id
-    ).first_or_404()
+    ).first_or_404
 
-    return f"Export feature coming soon for schedule {schedule_id}!"
+    cal = Calendar()
+
+    days_map = {
+        "Mon": 0,
+        "Tue": 1,
+        "Wed": 2,
+        "Thu": 3,
+        "Fri": 4,
+        "Sat": 5,
+        "Sun": 6,
+    }
+
+    for day, time_range in schedule.parsed_data.items():
+        if time_range == "Not Schedule":
+            continue
+
+        match = re.search(r"(\d+)\s*(am|pm)\s*-\s*(\d+)\s*(am|pm)", time_range, re.I)
+
+        if not match:
+            continue
+
+        start_hour = int(match.group(1))
+        start_period = match.group(2).lower()
+        end_hour = int(match.group(3))
+        end_period = match.group(4).lower()
+
+        if start_period == "pm" and start_hour != 12:
+            start_hour += 12
+        if end_period == "pm" and end_hour != 12:
+            end_hour += 12
+
+        event_date = schedule.week_start_date + timedelta(days=days_map[day])
+
+        e = Event()
+        e.name = "Work Shift"
+        e.begin = datetime.combine(event_date, datetime.min.time()).replace(
+            hour=start_hour
+        )
+        e.end = datetime.combine(event_date, datetime.min.time()).replace(hour=end_hour)
+        cal.events.add(e)
+
+    ics_file = io.BytesIO()
+    ics_file.write(str(cal).encode("utf-8"))
+    ics_file.seek(0)
+
+    return send_file(
+        ics_file,
+        mimetype="text/calendar",
+        as_attachment=True,
+        download_name=f"schedule_{schedule.week_start_date}.ics",
+    )
 
 
 @app.route("/update/<int:id>", methods=["POST", "GET"])
