@@ -153,7 +153,7 @@ class ScheduleParser:
         img, gray, thresh = self.preprocess_image(image_path)
 
         if debug:
-            cv2.imwrite("debug_thresh.png", thresh)
+            cv2.imwrite("uploads/modified/debug_thresh.png", thresh)
 
         # Detect layout type
         layout_type = self.detect_layout_type(thresh)

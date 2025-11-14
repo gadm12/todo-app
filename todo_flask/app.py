@@ -7,7 +7,7 @@ from flask_login import (
     login_required,
     current_user,
 )
-from models import db, User, Todo
+from models import db, User, Todo, Schedule
 from datetime import datetime
 import os
 from werkzeug.utils import secure_filename
@@ -129,18 +129,29 @@ def index():
             file.save(save_path)
 
             try:
-                print(f"Parsing file: {save_path}")
 
                 parsed_schedule = schedule_parser.parse_schedule(save_path, debug=True)
 
-                print("--- PARSED SCHEDULE ---")
-                print(parsed_schedule)
-                print("-----------------------")
+                print(f"Type of start_date_str: {type(start_date_str)}")
+                print(f"Value: {start_date_str}")
 
-                flash(
-                    "Schedule parsed successfully! (Check terminal for output)",
-                    "success",
+                # Convert string to date
+                week_start = datetime.strptime(start_date_str, "%Y-%m-%d").date()
+
+                print(f"Type of week_start: {type(week_start)}")
+                print(f"Value: {week_start}")
+
+                new_schedule = Schedule(
+                    user_id=current_user.id,
+                    week_start_date=week_start,
+                    image_filename=filename,
+                    parsed_data=parsed_schedule,
                 )
+                db.session.add(new_schedule)
+                db.session.commit()
+
+                flash("Schedule parsed and saved successfully!", "success")
+                return redirect(url_for("view_schedule", schedule_id=new_schedule.id))
 
             except Exception as e:
                 flash(f"Error parsing image: {e}", "danger")
@@ -192,6 +203,32 @@ def index():
         return render_template(
             "index.html", tasks=tasks, sort=sort, order=order, current_time=current_time
         )
+
+
+# @app.route("/schedule/<int:schedule_id>")
+# @login_required
+# def view_schedule(schedule_id):
+
+#     schedule = Schedule.query.filter_by(
+#         id=schedule_id, user_id=current_user.id
+#     ).first_or_404()
+
+#     days_order = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+
+#     return render_template(
+#         "view_schedule.html", schedule=schedule, days_order=days_order
+#     )
+
+
+@app.route("/schedule/<int:schedule_id>/export")
+@login_required
+def export_ics(schedule_id):
+    """Export schedule as .ics calendar file"""
+    schedule = Schedule.query.filter_by(
+        id=schedule_id, user_id=current_user.id
+    ).first_or_404()
+
+    return f"Export feature coming soon for schedule {schedule_id}!"
 
 
 @app.route("/update/<int:id>", methods=["POST", "GET"])

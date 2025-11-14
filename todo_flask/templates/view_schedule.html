@@ -1,0 +1,31 @@
+{% extends "base.html" %} {% block content %}
+<div class="content">
+  <h1>Schedule - Week of {{ schedule.week_start_date }}</h1>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Day</th>
+        <th>Shift Time</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for day in days_order %}
+      <tr>
+        <td><strong>{{ day }}</strong></td>
+        <td>{{ schedule.parsed_data[day] }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <!-- <a
+    href="{{ url_for('export_ics', schedule_id=schedule.id) }}"
+    class="btn btn-complete"
+  >
+    📅 Export to Calendar
+  </a> -->
+
+  <a href="{{ url_for('index') }}">← Back to Tasks</a>
+</div>
+{% endblock %}
