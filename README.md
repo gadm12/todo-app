@@ -1,88 +1,100 @@
-## To-Do App (v2.3 Flask)
+## To-Do App (v3.0 Flask Web App)
 
-- A modern, secure To-Do web application built with Flask — featuring user registration, login, password hashing, personal task management, and now **image upload + OCR schedule extraction** powered by EasyOCR and OpenCV.
+- A modern productivity app featuring user authentication, task management, and automated schedule parsing via OCR.
 
----
-
-## What's New in v2.3
-
-- This version builds on v2.2 with major new functionality:
-
-### **Image Uploads**
-
-- Users can upload screenshots of their weekly work schedules.
-
-### **OCR Integration (EasyOCR + OpenCV)**
-
-- Uploaded images are processed using:
-  - **EasyOCR** for text extraction
-  - **OpenCV** for preprocessing, thresholding, and layout detection
-  - Automatic row + column grouping
-  - Smart day/time detection for schedules
-
-### **Temporary Upload Handling**
-
-- Images are saved to an `uploads/` directory using secure filenames.
-
-### **Improved Access Control**
-
-- Uploads and parsing are only available to logged-in users.
-
-### 💬 **Better Flash Messages**
-
-- Unified styling across login, register, and dashboard pages.
+<p align="center"> <img src="https://img.shields.io/badge/Flask-v2.3-blue" /> <img src="https://img.shields.io/badge/Python-3.10+-yellow" /> <img src="https://img.shields.io/badge/License-MIT-green" /> <img src="https://img.shields.io/badge/OCR-EasyOCR-red" /> <img src="https://img.shields.io/badge/SQLAlchemy-ORM-orange" /> </p>
 
 ---
 
-## Features
+### 📸 Image Uploads
 
-### User Accounts
+Users can now upload screenshots of their weekly work schedules.
 
-- Secure registration and login
-- Password hashing using Flask-Bcrypt
-- Each user has a personal to-do list
-- Session-based authentication (Flask-Login)
+### OCR Integration (EasyOCR + OpenCV)
 
-### Task Management
+Uploaded images are automatically processed with:
+
+- **EasyOCR** — text extraction
+- **OpenCV** — preprocessing (grayscale, thresholding, cropping)
+- Automatic table/row detection
+- Smart identification of:
+  - Days of the week
+  - Shift time ranges
+  - “Off” / “Not Scheduled” entries
+
+### Schedule Storage
+
+- Parsed schedule JSON saved individually for each user
+- Uploaded images stored securely with `secure_filename()`
+
+### Improved Access Control
+
+- Only logged-in users can upload/view schedules
+
+### Enhanced Flash Messages
+
+- Unified, color-coded alert system across all pages
+
+---
+
+# Features
+
+## User Accounts
+
+- Register, log in, log out
+- Passwords hashed via **Flask-Bcrypt**
+- Private tasks & private schedules per user
+- Session management via **Flask-Login**
+
+---
+
+## Task Management
 
 - Add, update, delete tasks
-- Mark complete / unmark complete
+- Mark complete / unmark incomplete
 - Optional due dates
-- Sorting by:
-  - Date created
+- Sorting options:
+  - Creation date
   - Due date
-  - Completion status
-- Clean UI + categorized flash messages
-
-### Image Upload + OCR Parsing (NEW)
-
-- Upload schedule screenshots (`.png`, `.jpg`, `.jpeg`, `.gif`)
-- Automatic detection of:
-  - Days of the week
-  - Time ranges
-  - “Not Scheduled” indicators
-- Full preprocessing pipeline:
-  - Grayscale + thresholding
-  - Region detection
-  - Row grouping
-- Parsed schedule printed to terminal for now
-
-### Interface
-
-- Clean, modern, responsive layout
-- Consistent alert styling across pages
-- Welcome banner + navbar UI improvements
+  - Completed status
+- Clean, modern UI
+- Contextual flash messages
 
 ---
 
-## Tech Stack
+## Image Upload + OCR Schedule Parsing (NEW)
 
-- **Backend:** Python 3, Flask
-- **Database:** SQLite (SQLAlchemy ORM)
-- **Authentication:** Flask-Login, Flask-Bcrypt
-- **OCR Engine:** EasyOCR
-- **Image Processing:** OpenCV (cv2)
-- **Frontend:** HTML + Jinja2, CSS
+- Supports `.png`, `.jpg`, `.jpeg`, `.gif`
+- Automatically extracts weekly schedule info:
+  - Day → Time Range
+  - “Not Scheduled” handling
+- Saves:
+  - Uploaded image
+  - Week start date
+  - Parsed JSON schedule
+- Debug mode prints extracted schedule to console
+
+---
+
+## Interface
+
+- Clean, responsive layout
+- Custom login & signup UI
+- Modern navbar
+- Uniform styling across all pages
+
+---
+
+# 🛠 Tech Stack
+
+| Layer            | Technology                |
+| ---------------- | ------------------------- |
+| Backend          | Flask (Python 3)          |
+| Database         | SQLite (SQLAlchemy ORM)   |
+| Auth             | Flask-Login, Flask-Bcrypt |
+| OCR              | EasyOCR                   |
+| Image Processing | OpenCV (cv2)              |
+| Frontend         | HTML, Jinja2, CSS         |
 
 ---
 
@@ -131,12 +143,17 @@ Then open your browser at: http://127.0.0.1:5000/
 
 ## Future Plans
 
-- Display parsed OCR schedules directly in the dashboard
-- Auto-convert schedule times into tasks
-- Highlight overdue tasks visually
-- Password reset feature
+- Display parsed schedules directly in the UI
+- Export schedules to Apple/Google Calendar
+- Auto-convert shifts into tasks
+- Highlight overdue tasks
+- Password reset system
 - User profile settings
-- Deploy to Render, Railway, Fly.io, or Docker image
+- Deployment to:
+  - Render
+  - Railway
+  - Fly.io
+  - Docker
 
 ---
 
@@ -148,7 +165,7 @@ This project is open-source and available under the MIT License.
 
 ## Version
 
-**v2.3 — Flask with Authentication, Image Uploads, and OCR Integration**
+**v3.0 — Flask with Authentication, Image Uploads, and OCR Integration**
 
 ---
 

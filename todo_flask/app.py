@@ -8,13 +8,14 @@ from flask_login import (
     current_user,
 )
 from models import db, User, Todo, Schedule
+from parser import ScheduleParser
 from datetime import datetime, timedelta
+from ics import Calendar, Event
+from werkzeug.utils import secure_filename
 import os
 import io
 import re
-from ics import Calendar, Event
-from werkzeug.utils import secure_filename
-from parser import ScheduleParser
+
 
 app = Flask(__name__)
 
@@ -228,7 +229,7 @@ def view_schedule(schedule_id):
 def export_ics(schedule_id):
     schedule = Schedule.query.filter_by(
         id=schedule_id, user_id=current_user.id
-    ).first_or_404
+    ).first_or_404()
 
     cal = Calendar()
 
