@@ -230,33 +230,70 @@ class ScheduleParser:
                 if re.search(r"Not\s+Scheduled", row_text, re.IGNORECASE):
                     schedule[day_found] = "Not Scheduled"
                 else:
-                    # Look for time range
-                    time_pattern = r"(\d{1,2})\s*(?:a\.?m\.?|p\.?m\.?)\s*[-–—]\s*(\d{1,2})\s*(a\.?m\.?|p\.?m\.?)"
-                    time_match = re.search(time_pattern, row_text, re.IGNORECASE)
+                    # Try multiple patterns to handle different OCR outputs
+                    time_patterns = [
+                        # Pattern 1: "2 a.m. - 11 a.m." (with dash and periods)
+                        r"(\d{1,2})\s*(?:a\.?m\.?|p\.?m\.?)\s*[-–—:]\s*(\d{1,2})\s*(a\.?m\.?|p\.?m\.?)",
+                        # Pattern 2: "2am 11am" (space-separated, no dash)
+                        r"(\d{1,2})\s*(a\.?m\.?|p\.?m\.?)\s+(\d{1,2})\s*(a\.?m\.?|p\.?m\.?)",
+                    ]
+
+                    time_match = None
+                    pattern_used = None
+
+                    for pattern in time_patterns:
+                        time_match = re.search(pattern, row_text, re.IGNORECASE)
+                        if time_match:
+                            pattern_used = pattern
+                            break
 
                     if time_match:
-                        # Extract and normalize time
-                        start = time_match.group(1)
-                        end = time_match.group(2)
-                        end_period = (
-                            time_match.group(3).replace(".", "").strip().lower()
-                        )
+                        # Extract hours
+                        start_hour = time_match.group(1)
 
-                        # Determine start period
+                        # Handle different pattern structures
+                        if pattern_used == time_patterns[0]:
+                            # Pattern 1: (hour)(am/pm)-(hour)(am/pm)
+                            end_hour = time_match.group(2)
+                            end_period_raw = time_match.group(3)
+                        else:
+                            # Pattern 2: (hour)(am/pm) (hour)(am/pm)
+                            end_hour = time_match.group(3)
+                            end_period_raw = time_match.group(4)
+
+                        # Normalize end period (remove dots, lowercase)
+                        end_period = end_period_raw.replace(".", "").strip().lower()
+
+                        # Determine start period by looking at text before the match
                         start_idx = time_match.start()
                         before_time = row_text[:start_idx].lower()
-                        if "p.m" in before_time or "pm" in before_time:
+
+                        # Look for am/pm indicators before the start time
+                        start_period = "am"  # Default to am
+
+                        # Check the actual matched text for the start period
+                        matched_text = time_match.group(0).lower()
+                        first_time_part = (
+                            matched_text.split()[0]
+                            if " " in matched_text
+                            else matched_text[: len(start_hour) + 3]
+                        )
+
+                        if "pm" in first_time_part or "p.m" in first_time_part:
                             start_period = "pm"
-                        else:
+                        elif "am" in first_time_part or "a.m" in first_time_part:
                             start_period = "am"
 
+                        # NORMALIZE: Always output in consistent format
                         schedule[day_found] = (
-                            f"{start} {start_period} - {end} {end_period}"
+                            f"{start_hour}am - {end_hour}{end_period}"
+                            if start_period == "am"
+                            else f"{start_hour}pm - {end_hour}{end_period}"
                         )
+
                     else:
-                        schedule[day_found] = (
-                            row_text  # Store raw text if pattern not found
-                        )
+                        # No time pattern found - mark as Not Scheduled
+                        schedule[day_found] = "Not Scheduled"
 
         # Fill in missing days
         for day in days_order:
