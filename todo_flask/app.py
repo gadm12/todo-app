@@ -15,6 +15,7 @@ from werkzeug.utils import secure_filename
 import os
 import io
 import re
+import pytz
 
 
 app = Flask(__name__)
@@ -136,14 +137,10 @@ def index():
 
                 parsed_schedule = schedule_parser.parse_schedule(save_path, debug=True)
 
-                print(f"Type of start_date_str: {type(start_date_str)}")
-                print(f"Value: {start_date_str}")
-
                 # Convert string to date
                 week_start = datetime.strptime(start_date_str, "%Y-%m-%d").date()
 
-                print(f"Type of week_start: {type(week_start)}")
-                print(f"Value: {week_start}")
+                print(f"Week starts on: {week_start} ({week_start.strftime('%A')})")
 
                 new_schedule = Schedule(
                     user_id=current_user.id,
@@ -227,29 +224,51 @@ def view_schedule(schedule_id):
 @app.route("/schedule/<int:schedule_id>/export")
 @login_required
 def export_ics(schedule_id):
+    from ics import Calendar, Event
+    from datetime import datetime, timedelta
+    import re
+    import io
+    from flask import send_file
+    import pytz  # ← Add this import
+
     schedule = Schedule.query.filter_by(
         id=schedule_id, user_id=current_user.id
     ).first_or_404()
 
     cal = Calendar()
 
-    days_map = {
-        "Mon": 0,
-        "Tue": 1,
-        "Wed": 2,
-        "Thu": 3,
-        "Fri": 4,
-        "Sat": 5,
-        "Sun": 6,
-    }
+    # Set your timezone (change to your actual timezone)
+    tz = pytz.timezone(
+        "America/New_York"
+    )  # Or 'America/Chicago', 'America/Los_Angeles', etc.
+
+    # Map days to offsets from week_start_date
+    week_start_weekday = schedule.week_start_date.weekday()  # 0=Mon, 5=Sat, 6=Sun
+
+    days_of_week = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+
+    days_map = {}
+    for i, day in enumerate(days_of_week):
+        day_weekday = i
+        offset = (day_weekday - week_start_weekday) % 7
+        days_map[day] = offset
+
+    print(f"\n=== EXPORT DEBUG ===")
+    print(
+        f"Week starts: {schedule.week_start_date} ({schedule.week_start_date.strftime('%A')})"
+    )
+    print(f"Days map: {days_map}")
 
     for day, time_range in schedule.parsed_data.items():
-        if time_range == "Not Schedule":
+        if time_range == "Not Scheduled":
             continue
 
-        match = re.search(r"(\d+)\s*(am|pm)\s*-\s*(\d+)\s*(am|pm)", time_range, re.I)
+        print(f"\nProcessing {day}: {time_range}")
+
+        match = re.search(r"(\d+)(am|pm)\s*-\s*(\d+)(am|pm)", time_range, re.I)
 
         if not match:
+            print(f"  No match for: {time_range}")
             continue
 
         start_hour = int(match.group(1))
@@ -257,21 +276,45 @@ def export_ics(schedule_id):
         end_hour = int(match.group(3))
         end_period = match.group(4).lower()
 
+        # Convert to 24-hour
         if start_period == "pm" and start_hour != 12:
             start_hour += 12
+        elif start_period == "am" and start_hour == 12:
+            start_hour = 0
+
         if end_period == "pm" and end_hour != 12:
             end_hour += 12
+        elif end_period == "am" and end_hour == 12:
+            end_hour = 0
 
         event_date = schedule.week_start_date + timedelta(days=days_map[day])
 
+        print(f"  Start: {start_hour}:00, End: {end_hour}:00")
+        print(f"  Event date: {event_date} (offset: {days_map[day]} days)")
+
+        # Create event WITH timezone
         e = Event()
         e.name = "Work Shift"
-        e.begin = datetime.combine(event_date, datetime.min.time()).replace(
-            hour=start_hour
+
+        # Create timezone-aware datetimes
+        start_dt = tz.localize(
+            datetime.combine(event_date, datetime.min.time()).replace(hour=start_hour)
         )
-        e.end = datetime.combine(event_date, datetime.min.time()).replace(hour=end_hour)
+        end_dt = tz.localize(
+            datetime.combine(event_date, datetime.min.time()).replace(hour=end_hour)
+        )
+
+        e.begin = start_dt
+        e.end = end_dt
+
+        print(f"  Begin: {e.begin}")
+        print(f"  End: {e.end}")
+
         cal.events.add(e)
 
+    print("===================\n")
+
+    # Generate ICS file
     ics_file = io.BytesIO()
     ics_file.write(str(cal).encode("utf-8"))
     ics_file.seek(0)
