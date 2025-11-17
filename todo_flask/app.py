@@ -9,7 +9,7 @@ from flask_login import (
 )
 from models import db, User, Todo, Schedule
 from parser import ScheduleParser
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 from ics import Calendar, Event
 from werkzeug.utils import secure_filename
 import os
@@ -120,7 +120,7 @@ def index():
     current_time = datetime.now().strftime("%A, %B %d, %Y - %I:%M %p")
 
     if request.method == "POST":
-        # --- Get ALL potential form data ---
+
         task_content = request.form["content"].strip()
         due_date_str = request.form.get("due")
         file = request.files.get("screenshot")
@@ -137,7 +137,6 @@ def index():
 
                 parsed_schedule = schedule_parser.parse_schedule(save_path, debug=True)
 
-                # Convert string to date
                 week_start = datetime.strptime(start_date_str, "%Y-%m-%d").date()
 
                 print(f"Week starts on: {week_start} ({week_start.strftime('%A')})")
@@ -209,42 +208,40 @@ def index():
 @app.route("/schedule/<int:schedule_id>")
 @login_required
 def view_schedule(schedule_id):
-
     schedule = Schedule.query.filter_by(
         id=schedule_id, user_id=current_user.id
     ).first_or_404()
 
     days_order = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 
+    week_start_weekday = schedule.week_start_date.weekday()
+    day_offsets = {}
+    for i, day in enumerate(days_order):
+        day_weekday = i
+        offset = (day_weekday - week_start_weekday) % 7
+        day_offsets[day] = offset
+
     return render_template(
-        "view_schedule.html", schedule=schedule, days_order=days_order
+        "view_schedule.html",
+        schedule=schedule,
+        days_order=days_order,
+        day_offsets=day_offsets,
+        timedelta=timedelta,
     )
 
 
 @app.route("/schedule/<int:schedule_id>/export")
 @login_required
 def export_ics(schedule_id):
-    from ics import Calendar, Event
-    from datetime import datetime, timedelta
-    import re
-    import io
-    from flask import send_file
-    import pytz  # ← Add this import
 
     schedule = Schedule.query.filter_by(
         id=schedule_id, user_id=current_user.id
     ).first_or_404()
 
     cal = Calendar()
+    tz = pytz.timezone("America/New_York")  # Adjust to your timezone
 
-    # Set your timezone (change to your actual timezone)
-    tz = pytz.timezone(
-        "America/New_York"
-    )  # Or 'America/Chicago', 'America/Los_Angeles', etc.
-
-    # Map days to offsets from week_start_date
-    week_start_weekday = schedule.week_start_date.weekday()  # 0=Mon, 5=Sat, 6=Sun
-
+    week_start_weekday = schedule.week_start_date.weekday()
     days_of_week = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 
     days_map = {}
@@ -253,22 +250,28 @@ def export_ics(schedule_id):
         offset = (day_weekday - week_start_weekday) % 7
         days_map[day] = offset
 
-    print(f"\n=== EXPORT DEBUG ===")
-    print(
-        f"Week starts: {schedule.week_start_date} ({schedule.week_start_date.strftime('%A')})"
-    )
-    print(f"Days map: {days_map}")
-
     for day, time_range in schedule.parsed_data.items():
+        event_date = schedule.week_start_date + timedelta(days=days_map[day])
+
         if time_range == "Not Scheduled":
+
+            e = Event()
+            e.name = "Day Off 🌴"
+
+            start_dt = tz.localize(datetime.combine(event_date, time(hour=5, minute=0)))
+            end_dt = tz.localize(
+                datetime.combine(event_date, time(hour=15, minute=0))
+            )  # 3pm = 15:00
+
+            e.begin = start_dt
+            e.end = end_dt
+            cal.events.add(e)
             continue
 
-        print(f"\nProcessing {day}: {time_range}")
-
+        # Parse work shift times
         match = re.search(r"(\d+)(am|pm)\s*-\s*(\d+)(am|pm)", time_range, re.I)
 
         if not match:
-            print(f"  No match for: {time_range}")
             continue
 
         start_hour = int(match.group(1))
@@ -287,32 +290,14 @@ def export_ics(schedule_id):
         elif end_period == "am" and end_hour == 12:
             end_hour = 0
 
-        event_date = schedule.week_start_date + timedelta(days=days_map[day])
-
-        print(f"  Start: {start_hour}:00, End: {end_hour}:00")
-        print(f"  Event date: {event_date} (offset: {days_map[day]} days)")
-
-        # Create event WITH timezone
+        # Create work shift event
         e = Event()
-        e.name = "Work Shift"
-
-        # Create timezone-aware datetimes
-        start_dt = tz.localize(
-            datetime.combine(event_date, datetime.min.time()).replace(hour=start_hour)
-        )
-        end_dt = tz.localize(
-            datetime.combine(event_date, datetime.min.time()).replace(hour=end_hour)
-        )
-
+        e.name = "Work Shift 💼"
+        start_dt = tz.localize(datetime.combine(event_date, time(hour=start_hour)))
+        end_dt = tz.localize(datetime.combine(event_date, time(hour=end_hour)))
         e.begin = start_dt
         e.end = end_dt
-
-        print(f"  Begin: {e.begin}")
-        print(f"  End: {e.end}")
-
         cal.events.add(e)
-
-    print("===================\n")
 
     # Generate ICS file
     ics_file = io.BytesIO()
