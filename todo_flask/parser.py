@@ -15,11 +15,27 @@ class ScheduleParser:
         img = cv2.imread(image_path)
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-        thresh = cv2.adaptiveThreshold(
+        # Try multiple preprocessing approaches
+        # Option A: Adaptive threshold (current)
+        thresh1 = cv2.adaptiveThreshold(
             gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2
         )
 
-        return img, gray, thresh
+        # Option B: Sharpen the image first
+        kernel = np.array([[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]])
+        sharpened = cv2.filter2D(gray, -1, kernel)
+        thresh2 = cv2.adaptiveThreshold(
+            sharpened, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2
+        )
+
+        # Option C: Denoise first
+        denoised = cv2.fastNlMeansDenoising(gray, None, 10, 7, 21)
+        thresh3 = cv2.adaptiveThreshold(
+            denoised, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2
+        )
+
+        # For now, use the sharpened version
+        return img, gray, thresh2
 
     def detect_layout_type(self, thresh):
         """
@@ -202,80 +218,146 @@ class ScheduleParser:
         }
 
         schedule = {}
+        last_day_found = None
 
-        for row in rows:
-
+        for idx, row in enumerate(rows):
             row_text = " ".join([r["text"] for r in row])
 
+            # PRE-PROCESS: Fix common OCR mistakes BEFORE regex
+            # "Iam" → "1am", "Ipm" → "1pm", "lam" → "1am", "lpm" → "1pm"
+            row_text = re.sub(r"\b[Ii]am\b", "1am", row_text, flags=re.IGNORECASE)
+            row_text = re.sub(r"\b[Ii]pm\b", "1pm", row_text, flags=re.IGNORECASE)
+            row_text = re.sub(r"\blam\b", "1am", row_text, flags=re.IGNORECASE)
+            row_text = re.sub(r"\blpm\b", "1pm", row_text, flags=re.IGNORECASE)
+
+            print(f"DEBUG Row {idx}: '{row_text}'")
+
+            # Look for day name
             day_found = None
             for day_variant, day_canonical in day_variations.items():
                 if re.search(rf"\b{day_variant}\b", row_text, re.IGNORECASE):
                     day_found = day_canonical
                     break
 
+            # Check for time patterns
+            time_patterns = [
+                r"(\d{1,2})\s*(?:a\.?m\.?|p\.?m\.?)\s*[-–—:]\s*(\d{1,2})\s*(a\.?m\.?|p\.?m\.?)",
+                r"(\d{1,2})\s*(a\.?m\.?|p\.?m\.?)\s+(\d{1,2})\s*(a\.?m\.?|p\.?m\.?)",
+            ]
+
+            time_match = None
+            pattern_used = None
+
+            for pattern in time_patterns:
+                time_match = re.search(pattern, row_text, re.IGNORECASE)
+                if time_match:
+                    pattern_used = pattern
+                    break
+
+            print(
+                f"  Day found: {day_found}, Time match: {bool(time_match)}, Last day: {last_day_found}"
+            )
+
             if day_found:
+                last_day_found = day_found
 
                 if re.search(r"Not\s+Scheduled", row_text, re.IGNORECASE):
-                    schedule[day_found] = "Not Scheduled"
-                else:
+                    print(
+                        f"  → Found 'Not Scheduled' for {day_found}, waiting for next row..."
+                    )
+                    continue
+                elif time_match:
+                    # Process time normally
+                    start_hour = time_match.group(1)
 
-                    time_patterns = [
-                        r"(\d{1,2})\s*(?:a\.?m\.?|p\.?m\.?)\s*[-–—:]\s*(\d{1,2})\s*(a\.?m\.?|p\.?m\.?)",
-                        r"(\d{1,2})\s*(a\.?m\.?|p\.?m\.?)\s+(\d{1,2})\s*(a\.?m\.?|p\.?m\.?)",
-                    ]
+                    if pattern_used == time_patterns[0]:
+                        end_hour = time_match.group(2)
+                        end_period_raw = time_match.group(3)
+                    else:
+                        end_hour = time_match.group(3)
+                        end_period_raw = time_match.group(4)
 
-                    time_match = None
-                    pattern_used = None
+                    end_period = end_period_raw.replace(".", "").strip().lower()
 
-                    for pattern in time_patterns:
-                        time_match = re.search(pattern, row_text, re.IGNORECASE)
-                        if time_match:
-                            pattern_used = pattern
-                            break
+                    matched_text = time_match.group(0).lower()
+                    first_time_part = (
+                        matched_text.split()[0]
+                        if " " in matched_text
+                        else matched_text[: len(start_hour) + 3]
+                    )
 
-                    if time_match:
-
-                        start_hour = time_match.group(1)
-
-                        if pattern_used == time_patterns[0]:
-
-                            end_hour = time_match.group(2)
-                            end_period_raw = time_match.group(3)
-                        else:
-
-                            end_hour = time_match.group(3)
-                            end_period_raw = time_match.group(4)
-
-                        end_period = end_period_raw.replace(".", "").strip().lower()
-
-                        start_idx = time_match.start()
-                        before_time = row_text[:start_idx].lower()
-
+                    if "pm" in first_time_part or "p.m" in first_time_part:
+                        start_period = "pm"
+                    else:
                         start_period = "am"
 
-                        matched_text = time_match.group(0).lower()
-                        first_time_part = (
-                            matched_text.split()[0]
-                            if " " in matched_text
-                            else matched_text[: len(start_hour) + 3]
+                    # OCR CORRECTION
+                    start_int = int(start_hour)
+                    end_int = int(end_hour)
+
+                    if (
+                        end_int == 1
+                        and end_period == "am"
+                        and start_int >= 2
+                        and start_period == "am"
+                    ):
+                        print(
+                            f"  ⚠️  OCR Correction for {day_found}: {end_hour}am → 11am (likely misread)"
                         )
+                        end_hour = "11"
 
-                        if "pm" in first_time_part or "p.m" in first_time_part:
-                            start_period = "pm"
-                        elif "am" in first_time_part or "a.m" in first_time_part:
-                            start_period = "am"
+                    schedule[day_found] = (
+                        f"{start_hour}{start_period} - {end_hour}{end_period}"
+                    )
+                    print(f"  → Saved {day_found}: {schedule[day_found]}")
 
-                        # NORMALIZE: Always output in consistent format
-                        schedule[day_found] = (
-                            f"{start_hour}am - {end_hour}{end_period}"
-                            if start_period == "am"
-                            else f"{start_hour}pm - {end_hour}{end_period}"
-                        )
+            elif time_match and last_day_found:
+                print(f"  📍 Found orphaned time, assigning to {last_day_found}")
 
-                    else:
+                start_hour = time_match.group(1)
 
-                        schedule[day_found] = "Not Scheduled"
+                if pattern_used == time_patterns[0]:
+                    end_hour = time_match.group(2)
+                    end_period_raw = time_match.group(3)
+                else:
+                    end_hour = time_match.group(3)
+                    end_period_raw = time_match.group(4)
 
+                end_period = end_period_raw.replace(".", "").strip().lower()
+
+                matched_text = time_match.group(0).lower()
+                first_time_part = (
+                    matched_text.split()[0]
+                    if " " in matched_text
+                    else matched_text[: len(start_hour) + 3]
+                )
+
+                if "pm" in first_time_part or "p.m" in first_time_part:
+                    start_period = "pm"
+                else:
+                    start_period = "am"
+
+                # OCR CORRECTION
+                start_int = int(start_hour)
+                end_int = int(end_hour)
+
+                if (
+                    end_int == 1
+                    and end_period == "am"
+                    and start_int >= 2
+                    and start_period == "am"
+                ):
+                    print(
+                        f"  ⚠️  OCR Correction for {last_day_found}: {end_hour}am → 11am (likely misread)"
+                    )
+                    end_hour = "11"
+
+                schedule[last_day_found] = (
+                    f"{start_hour}{start_period} - {end_hour}{end_period}"
+                )
+                print(f"  → Saved {last_day_found}: {schedule[last_day_found]}")
+
+        # Fill in missing days
         for day in days_order:
             if day not in schedule:
                 schedule[day] = "Not Scheduled"

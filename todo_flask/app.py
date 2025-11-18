@@ -233,6 +233,12 @@ def view_schedule(schedule_id):
 @app.route("/schedule/<int:schedule_id>/export")
 @login_required
 def export_ics(schedule_id):
+    from ics import Calendar, Event
+    from datetime import datetime, timedelta, time
+    import re
+    import io
+    from flask import send_file
+    import pytz
 
     schedule = Schedule.query.filter_by(
         id=schedule_id, user_id=current_user.id
@@ -254,15 +260,11 @@ def export_ics(schedule_id):
         event_date = schedule.week_start_date + timedelta(days=days_map[day])
 
         if time_range == "Not Scheduled":
-
+            # Create a timed "Day Off" event (5am - 3pm)
             e = Event()
             e.name = "Day Off 🌴"
-
             start_dt = tz.localize(datetime.combine(event_date, time(hour=5, minute=0)))
-            end_dt = tz.localize(
-                datetime.combine(event_date, time(hour=15, minute=0))
-            )  # 3pm = 15:00
-
+            end_dt = tz.localize(datetime.combine(event_date, time(hour=15, minute=0)))
             e.begin = start_dt
             e.end = end_dt
             cal.events.add(e)
@@ -272,6 +274,7 @@ def export_ics(schedule_id):
         match = re.search(r"(\d+)(am|pm)\s*-\s*(\d+)(am|pm)", time_range, re.I)
 
         if not match:
+            print(f"Warning: Could not parse time for {day}: {time_range}")
             continue
 
         start_hour = int(match.group(1))
@@ -290,13 +293,26 @@ def export_ics(schedule_id):
         elif end_period == "am" and end_hour == 12:
             end_hour = 0
 
+        # Create start datetime
+        start_dt = tz.localize(datetime.combine(event_date, time(hour=start_hour)))
+
+        # Check if shift crosses midnight (end hour is earlier than start hour)
+        if end_hour < start_hour:
+            # Shift goes to next day
+            end_date = event_date + timedelta(days=1)
+            end_dt = tz.localize(datetime.combine(end_date, time(hour=end_hour)))
+        else:
+            # Shift ends same day
+            end_dt = tz.localize(datetime.combine(event_date, time(hour=end_hour)))
+
         # Create work shift event
         e = Event()
         e.name = "Work Shift 💼"
-        start_dt = tz.localize(datetime.combine(event_date, time(hour=start_hour)))
-        end_dt = tz.localize(datetime.combine(event_date, time(hour=end_hour)))
         e.begin = start_dt
         e.end = end_dt
+
+        print(f"{day}: {start_dt} → {end_dt}")  # Debug
+
         cal.events.add(e)
 
     # Generate ICS file

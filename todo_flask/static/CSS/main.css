@@ -511,7 +511,7 @@ input:focus {
   background-color: #cff4fc;
   color: #055160;
 }
-/* Flash message styling (shared across all pages) */
+
 .flash-container {
   max-width: 400px;
   margin: 20px auto;
@@ -527,7 +527,6 @@ input:focus {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Color themes for flash messages */
 .flash.success {
   background-color: #d1e7dd;
   color: #0f5132;
@@ -544,4 +543,20 @@ input:focus {
   background-color: #cff4fc;
   color: #055160;
   border: 1px solid #b6effb;
+}
+
+table th:nth-child(2),
+table td:nth-child(2) {
+  width: 80px;
+  min-width: 80px;
+}
+
+table th:nth-child(1),
+table td:nth-child(1) {
+  width: 60px;
+}
+
+table th:nth-child(3),
+table td:nth-child(3) {
+  width: auto;
 }
