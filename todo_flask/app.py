@@ -16,6 +16,12 @@ import os
 import io
 import re
 import pytz
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import Flow
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
+import json
+import config
 
 
 app = Flask(__name__)
@@ -390,6 +396,197 @@ def unmark(id):
     db.session.commit()
     flash("Task has been marked as incomplete", "danger")
     return redirect(url_for("index"))
+
+
+@app.route("/connect-google-calendar")
+@login_required
+def connect_google_calendar():
+    """Initiate Google OAuth flow"""
+    flow = Flow.from_client_secrets_file(
+        config.GOOGLE_CLIENT_SECRETS_FILE,
+        scopes=config.SCOPES,
+        redirect_uri=url_for("oauth2callback", _external=True),
+    )
+
+    authorization_url, state = flow.authorization_url(
+        access_type="offline", include_granted_scopes="true"
+    )
+
+    # Store state in session for verification
+    from flask import session
+
+    session["state"] = state
+
+    return redirect(authorization_url)
+
+
+@app.route("/oauth2callback")
+@login_required
+def oauth2callback():
+    """Handle OAuth callback from Google"""
+    from flask import session
+
+    state = session["state"]
+
+    flow = Flow.from_client_secrets_file(
+        config.GOOGLE_CLIENT_SECRETS_FILE,
+        scopes=config.SCOPES,
+        state=state,
+        redirect_uri=url_for("oauth2callback", _external=True),
+    )
+
+    # Get authorization response
+    flow.fetch_token(authorization_response=request.url)
+
+    # Store credentials in database
+    credentials = flow.credentials
+    current_user.google_calendar_token = credentials.to_json()
+    current_user.google_calendar_connected = True
+    db.session.commit()
+
+    flash("Google Calendar connected successfully! 🎉", "success")
+    return redirect(url_for("index"))
+
+
+@app.route("/disconnect-google-calendar")
+@login_required
+def disconnect_google_calendar():
+    """Disconnect Google Calendar"""
+    current_user.google_calendar_token = None
+    current_user.google_calendar_connected = False
+    db.session.commit()
+
+    flash("Google Calendar disconnected.", "info")
+    return redirect(url_for("index"))
+
+
+@app.route("/schedule/<int:schedule_id>/add-to-google-calendar")
+@login_required
+def add_to_google_calendar(schedule_id):
+    """Add schedule directly to Google Calendar"""
+
+    # Check if user has connected Google Calendar
+    if not current_user.google_calendar_connected:
+        flash("Please connect your Google Calendar first!", "danger")
+        return redirect(url_for("view_schedule", schedule_id=schedule_id))
+
+    # Get the schedule
+    schedule = Schedule.query.filter_by(
+        id=schedule_id, user_id=current_user.id
+    ).first_or_404()
+
+    try:
+        # Load credentials from database
+        credentials = Credentials.from_authorized_user_info(
+            json.loads(current_user.google_calendar_token)
+        )
+
+        # Build Calendar API service
+        service = build("calendar", "v3", credentials=credentials)
+
+        # Timezone
+        import pytz
+
+        tz = pytz.timezone("America/Chicago")
+
+        # Calculate day offsets
+        week_start_weekday = schedule.week_start_date.weekday()
+        days_of_week = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+
+        days_map = {}
+        for i, day in enumerate(days_of_week):
+            day_weekday = i
+            offset = (day_weekday - week_start_weekday) % 7
+            days_map[day] = offset
+
+        events_created = 0
+
+        for day, time_range in schedule.parsed_data.items():
+            event_date = schedule.week_start_date + timedelta(days=days_map[day])
+
+            if time_range == "Not Scheduled":
+                # Create Day Off event
+                event = {
+                    "summary": "Day Off 🌴",
+                    "start": {
+                        "date": event_date.isoformat(),
+                        "timeZone": "America/Chicago",
+                    },
+                    "end": {
+                        "date": (event_date + timedelta(days=1)).isoformat(),
+                        "timeZone": "America/Chicago",
+                    },
+                    "colorId": "10",  # Green
+                }
+
+                service.events().insert(calendarId="primary", body=event).execute()
+                events_created += 1
+                continue
+
+            # Parse work shift
+            match = re.search(r"(\d+)(am|pm)\s*-\s*(\d+)(am|pm)", time_range, re.I)
+
+            if not match:
+                continue
+
+            start_hour = int(match.group(1))
+            start_period = match.group(2).lower()
+            end_hour = int(match.group(3))
+            end_period = match.group(4).lower()
+
+            # Convert to 24-hour
+            if start_period == "pm" and start_hour != 12:
+                start_hour += 12
+            elif start_period == "am" and start_hour == 12:
+                start_hour = 0
+
+            if end_period == "pm" and end_hour != 12:
+                end_hour += 12
+            elif end_period == "am" and end_hour == 12:
+                end_hour = 0
+
+            # Check if crosses midnight
+            if end_hour < start_hour:
+                end_date = event_date + timedelta(days=1)
+            else:
+                end_date = event_date
+
+            # Create work shift event
+            start_dt = tz.localize(
+                datetime.combine(event_date, datetime.min.time()).replace(
+                    hour=start_hour
+                )
+            )
+            end_dt = tz.localize(
+                datetime.combine(end_date, datetime.min.time()).replace(hour=end_hour)
+            )
+
+            event = {
+                "summary": "Work Shift 💼",
+                "description": f"Grocery Replenishment Specialist\nStore #1602",
+                "start": {
+                    "dateTime": start_dt.isoformat(),
+                    "timeZone": "America/Chicago",
+                },
+                "end": {
+                    "dateTime": end_dt.isoformat(),
+                    "timeZone": "America/Chicago",
+                },
+                "colorId": "9",  # Blue
+            }
+
+            service.events().insert(calendarId="primary", body=event).execute()
+            events_created += 1
+
+        flash(
+            f"Successfully added {events_created} events to your Google Calendar! 🎉",
+            "success",
+        )
+        return redirect(url_for("view_schedule", schedule_id=schedule_id))
+
+    except Exception as e:
+        flash(f"Error adding to Google Calendar: {str(e)}", "danger")
+        return redirect(url_for("view_schedule", schedule_id=schedule_id))
 
 
 if __name__ == "__main__":

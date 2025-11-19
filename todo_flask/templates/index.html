@@ -11,111 +11,130 @@ get_flashed_messages(with_categories=true) %} {% if messages %}
 </div>
 {% endif %} {% endwith %}
 
-<div class="table-container">
-  <h1 style="text-align: center">Task Master</h1>
-  <p style="text-align: left; color: rgb(127, 20, 228); font-size: 0.9em">
-    {{ current_time }}
-  </p>
-
-  {% if tasks|length < 1 %}
-  <h4 style="text-align: center">There is no tasks yet</h4>
-
+<div style="text-align: center; margin: 20px 0">
+  {% if current_user.google_calendar_connected %}
+  <span style="color: green; font-weight: bold"
+    >✓ Google Calendar Connected</span
+  >
+  <a
+    href="{{ url_for('disconnect_google_calendar') }}"
+    style="margin-left: 10px"
+    >Disconnect</a
+  >
   {% else %}
-
-  <table>
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>
-          <a
-            href="{{ url_for('index', sort='content', order='desc' if sort == 'content' and order == 'asc' else 'asc') }}"
-            class="sortable {% if sort == 'content' %}{{ order }}{% endif %}"
-          >
-            Task
-          </a>
-        </th>
-        <th>
-          <a
-            href="{{ url_for('index', sort='date_created', order='desc' if sort == 'date_created' and order == 'asc' else 'asc') }}"
-            class="sortable {% if sort == 'date_created' %}{{ order }}{% endif %}"
-          >
-            Added
-          </a>
-        </th>
-        <th>
-          <a
-            href="{{ url_for('index', sort='due', order='desc' if sort == 'due' and order == 'asc' else 'asc') }}"
-            class="sortable {% if sort == 'due' %}{{ order }}{% endif %}"
-          >
-            Due
-          </a>
-        </th>
-        <th>
-          <a
-            href="{{ url_for('index', sort='completed', order='desc' if sort == 'completed' and order == 'asc' else 'asc') }}"
-            class="sortable {% if sort == 'completed' %}{{ order }}{% endif %}"
-          >
-            Status
-          </a>
-        </th>
-        <th>Mark</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-
-    {% for task in tasks %}
-
-    <tr>
-      <td>{{loop.index}}</td>
-      <td>
-        {% if task.completed %} ✅ <s>{{ task.content }}</s>
-        {% else %} 🕓 {{ task.content }} {% endif %}
-      </td>
-
-      <td>{{task.date_created.date()}}</td>
-      <td>{{task.due if task.due else '—'}}</td>
-
-      <td>{% if task.completed %} Done {% else %} Pending {% endif %}</td>
-      <td>
-        {% if not task.completed %}
-        <a href="/complete/{{task.id}}" class="btn btn-complete"
-          >✅ Mark Complete</a
-        >
-        {% else %}
-        <a href="/unmark/{{task.id}}" class="btn btn-unmark">↩️ Unmark</a>
-        {% endif %}
-      </td>
-
-      <td>
-        <a href="/delete/{{task.id}}">Delete</a>
-        <br />
-        <br />
-        <a href="/update/{{task.id}}">Update</a>
-      </td>
-    </tr>
-
-    {% endfor %} {% endif %}
-  </table>
-
-  <form action="/" method="POST" enctype="multipart/form-data">
-    <label for="content">Task:</label>
-    <input
-      type="text"
-      name="content"
-      id="content"
-      placeholder="Enter your task"
-    />
-    <label for="due">Due Date:</label>
-    <input type="date" name="due" id="due" />
-
-    <label for="screenshot">Schedule Screenshot:</label>
-    <input type="file" name="screenshot" id="screenshot" />
-
-    <label for="start_date">Schedule Start Date:</label>
-    <input type="date" name="schedule_start_date" id="start_date" />
-
-    <input type="submit" value="Add Task / Process Schedule" />
-  </form>
+  <a href="{{ url_for('connect_google_calendar') }}" class="btn btn-complete">
+    📅 Connect Google Calendar
+  </a>
+  {% endif %}
 </div>
 
-{% endblock %}
+<div class="table-container">
+  <div class="table-container">
+    <h1 style="text-align: center">Task Master</h1>
+    <p style="text-align: left; color: rgb(127, 20, 228); font-size: 0.9em">
+      {{ current_time }}
+    </p>
+
+    {% if tasks|length < 1 %}
+    <h4 style="text-align: center">There is no tasks yet</h4>
+
+    {% else %}
+
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>
+            <a
+              href="{{ url_for('index', sort='content', order='desc' if sort == 'content' and order == 'asc' else 'asc') }}"
+              class="sortable {% if sort == 'content' %}{{ order }}{% endif %}"
+            >
+              Task
+            </a>
+          </th>
+          <th>
+            <a
+              href="{{ url_for('index', sort='date_created', order='desc' if sort == 'date_created' and order == 'asc' else 'asc') }}"
+              class="sortable {% if sort == 'date_created' %}{{ order }}{% endif %}"
+            >
+              Added
+            </a>
+          </th>
+          <th>
+            <a
+              href="{{ url_for('index', sort='due', order='desc' if sort == 'due' and order == 'asc' else 'asc') }}"
+              class="sortable {% if sort == 'due' %}{{ order }}{% endif %}"
+            >
+              Due
+            </a>
+          </th>
+          <th>
+            <a
+              href="{{ url_for('index', sort='completed', order='desc' if sort == 'completed' and order == 'asc' else 'asc') }}"
+              class="sortable {% if sort == 'completed' %}{{ order }}{% endif %}"
+            >
+              Status
+            </a>
+          </th>
+          <th>Mark</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      {% for task in tasks %}
+
+      <tr>
+        <td>{{loop.index}}</td>
+        <td>
+          {% if task.completed %} ✅ <s>{{ task.content }}</s>
+          {% else %} 🕓 {{ task.content }} {% endif %}
+        </td>
+
+        <td>{{task.date_created.date()}}</td>
+        <td>{{task.due if task.due else '—'}}</td>
+
+        <td>{% if task.completed %} Done {% else %} Pending {% endif %}</td>
+        <td>
+          {% if not task.completed %}
+          <a href="/complete/{{task.id}}" class="btn btn-complete"
+            >✅ Mark Complete</a
+          >
+          {% else %}
+          <a href="/unmark/{{task.id}}" class="btn btn-unmark">↩️ Unmark</a>
+          {% endif %}
+        </td>
+
+        <td>
+          <a href="/delete/{{task.id}}">Delete</a>
+          <br />
+          <br />
+          <a href="/update/{{task.id}}">Update</a>
+        </td>
+      </tr>
+
+      {% endfor %} {% endif %}
+    </table>
+
+    <form action="/" method="POST" enctype="multipart/form-data">
+      <label for="content">Task:</label>
+      <input
+        type="text"
+        name="content"
+        id="content"
+        placeholder="Enter your task"
+      />
+      <label for="due">Due Date:</label>
+      <input type="date" name="due" id="due" />
+
+      <label for="screenshot">Schedule Screenshot:</label>
+      <input type="file" name="screenshot" id="screenshot" />
+
+      <label for="start_date">Schedule Start Date:</label>
+      <input type="date" name="schedule_start_date" id="start_date" />
+
+      <input type="submit" value="Add Task / Process Schedule" />
+    </form>
+  </div>
+
+  {% endblock %}
+</div>

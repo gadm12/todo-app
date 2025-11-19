@@ -25,13 +25,27 @@
     </tbody>
   </table>
 
+  {% if current_user.google_calendar_connected %}
   <a
-    href="{{ url_for('export_ics', schedule_id=schedule.id) }}"
+    href="{{ url_for('add_to_google_calendar', schedule_id=schedule.id) }}"
     class="btn btn-complete"
   >
-    📅 Export to Calendar
+    📅 Add to Google Calendar
   </a>
+  {% else %}
+  <p style="color: #666; margin: 10px 0">
+    <a href="{{ url_for('connect_google_calendar') }}"
+      >Connect Google Calendar</a
+    >
+    to add events directly!
+  </p>
+  {% endif %}
 
-  <a href="{{ url_for('index') }}">← Back to Tasks</a>
+  <a
+    href="{{ url_for('export_ics', schedule_id=schedule.id) }}"
+    style="margin-left: 10px"
+  >
+    or download .ics file
+  </a>
 </div>
 {% endblock %}
