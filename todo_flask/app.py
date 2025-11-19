@@ -245,7 +245,7 @@ def export_ics(schedule_id):
     ).first_or_404()
 
     cal = Calendar()
-    tz = pytz.timezone("America/New_York")  # Adjust to your timezone
+    tz = pytz.timezone("America/Chicago")  # Adjust to your timezone
 
     week_start_weekday = schedule.week_start_date.weekday()
     days_of_week = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
@@ -263,8 +263,8 @@ def export_ics(schedule_id):
             # Create a timed "Day Off" event (5am - 3pm)
             e = Event()
             e.name = "Day Off 🌴"
-            start_dt = tz.localize(datetime.combine(event_date, time(hour=5, minute=0)))
-            end_dt = tz.localize(datetime.combine(event_date, time(hour=15, minute=0)))
+            start_dt = tz.localize(datetime.combine(event_date, time(hour=2, minute=0)))
+            end_dt = tz.localize(datetime.combine(event_date, time(hour=11, minute=0)))
             e.begin = start_dt
             e.end = end_dt
             cal.events.add(e)
