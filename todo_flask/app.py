@@ -448,18 +448,6 @@ def oauth2callback():
     return redirect(url_for("index"))
 
 
-@app.route("/disconnect-google-calendar")
-@login_required
-def disconnect_google_calendar():
-    """Disconnect Google Calendar"""
-    current_user.google_calendar_token = None
-    current_user.google_calendar_connected = False
-    db.session.commit()
-
-    flash("Google Calendar disconnected.", "info")
-    return redirect(url_for("index"))
-
-
 @app.route("/schedule/<int:schedule_id>/add-to-google-calendar")
 @login_required
 def add_to_google_calendar(schedule_id):
@@ -476,17 +464,22 @@ def add_to_google_calendar(schedule_id):
     ).first_or_404()
 
     try:
+        print("\n=== GOOGLE CALENDAR DEBUG ===")
+        print(f"Schedule ID: {schedule_id}")
+        print(f"Week start: {schedule.week_start_date}")
+        print(f"Schedule data: {schedule.parsed_data}")
+
         # Load credentials from database
         credentials = Credentials.from_authorized_user_info(
             json.loads(current_user.google_calendar_token)
         )
+        print("✓ Credentials loaded")
 
         # Build Calendar API service
         service = build("calendar", "v3", credentials=credentials)
+        print("✓ Calendar service built")
 
         # Timezone
-        import pytz
-
         tz = pytz.timezone("America/Chicago")
 
         # Calculate day offsets
@@ -501,7 +494,10 @@ def add_to_google_calendar(schedule_id):
 
         events_created = 0
 
+        print(f"\nProcessing {len(schedule.parsed_data)} days...")
+
         for day, time_range in schedule.parsed_data.items():
+            print(f"\n→ Processing {day}: {time_range}")
             event_date = schedule.week_start_date + timedelta(days=days_map[day])
 
             if time_range == "Not Scheduled":
@@ -520,6 +516,7 @@ def add_to_google_calendar(schedule_id):
                 }
 
                 service.events().insert(calendarId="primary", body=event).execute()
+                print(f"  ✓ Day Off event created for {day}")
                 events_created += 1
                 continue
 
@@ -527,6 +524,7 @@ def add_to_google_calendar(schedule_id):
             match = re.search(r"(\d+)(am|pm)\s*-\s*(\d+)(am|pm)", time_range, re.I)
 
             if not match:
+                print(f"  ⚠️  Could not parse time for {day}")
                 continue
 
             start_hour = int(match.group(1))
@@ -563,7 +561,7 @@ def add_to_google_calendar(schedule_id):
 
             event = {
                 "summary": "Work Shift 💼",
-                "description": f"Grocery Replenishment Specialist\nStore #1602",
+                "description": "Grocery Replenishment Specialist\nStore #1602",
                 "start": {
                     "dateTime": start_dt.isoformat(),
                     "timeZone": "America/Chicago",
@@ -576,7 +574,11 @@ def add_to_google_calendar(schedule_id):
             }
 
             service.events().insert(calendarId="primary", body=event).execute()
+            print(f"  ✓ Work shift event created for {day}")
             events_created += 1
+
+        # THIS IS NOW OUTSIDE THE LOOP
+        print(f"\n=== Total events created: {events_created} ===\n")
 
         flash(
             f"Successfully added {events_created} events to your Google Calendar! 🎉",
@@ -585,8 +587,21 @@ def add_to_google_calendar(schedule_id):
         return redirect(url_for("view_schedule", schedule_id=schedule_id))
 
     except Exception as e:
+        print(f"\n❌ ERROR: {str(e)}\n")
         flash(f"Error adding to Google Calendar: {str(e)}", "danger")
         return redirect(url_for("view_schedule", schedule_id=schedule_id))
+
+
+@app.route("/disconnect-google-calendar")
+@login_required
+def disconnect_google_calendar():
+    """Disconnect Google Calendar"""
+    current_user.google_calendar_token = None
+    current_user.google_calendar_connected = False
+    db.session.commit()
+
+    flash("Google Calendar disconnected.", "info")
+    return redirect(url_for("index"))
 
 
 if __name__ == "__main__":

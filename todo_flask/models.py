@@ -25,6 +25,13 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(100), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(200), nullable=False)
+
+    # Google Calendar integration
+    # Store OAuth2 credentials as JSON
+    google_calendar_token = db.Column(db.Text, nullable=True)
+    google_calendar_connected = db.Column(db.Boolean, default=False)
+
+    # Relationship to Todo and Schedule
     todos = db.relationship("Todo", backref="user", lazy=True)
     schedules = db.relationship("Schedule", backref="user", lazy=True)
 
