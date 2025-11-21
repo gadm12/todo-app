@@ -464,20 +464,14 @@ def add_to_google_calendar(schedule_id):
     ).first_or_404()
 
     try:
-        print("\n=== GOOGLE CALENDAR DEBUG ===")
-        print(f"Schedule ID: {schedule_id}")
-        print(f"Week start: {schedule.week_start_date}")
-        print(f"Schedule data: {schedule.parsed_data}")
 
         # Load credentials from database
         credentials = Credentials.from_authorized_user_info(
             json.loads(current_user.google_calendar_token)
         )
-        print("✓ Credentials loaded")
 
         # Build Calendar API service
         service = build("calendar", "v3", credentials=credentials)
-        print("✓ Calendar service built")
 
         # Timezone
         tz = pytz.timezone("America/Chicago")
@@ -494,10 +488,8 @@ def add_to_google_calendar(schedule_id):
 
         events_created = 0
 
-        print(f"\nProcessing {len(schedule.parsed_data)} days...")
-
         for day, time_range in schedule.parsed_data.items():
-            print(f"\n→ Processing {day}: {time_range}")
+
             event_date = schedule.week_start_date + timedelta(days=days_map[day])
 
             if time_range == "Not Scheduled":
@@ -516,7 +508,6 @@ def add_to_google_calendar(schedule_id):
                 }
 
                 service.events().insert(calendarId="primary", body=event).execute()
-                print(f"  ✓ Day Off event created for {day}")
                 events_created += 1
                 continue
 
@@ -524,7 +515,6 @@ def add_to_google_calendar(schedule_id):
             match = re.search(r"(\d+)(am|pm)\s*-\s*(\d+)(am|pm)", time_range, re.I)
 
             if not match:
-                print(f"  ⚠️  Could not parse time for {day}")
                 continue
 
             start_hour = int(match.group(1))
@@ -574,12 +564,10 @@ def add_to_google_calendar(schedule_id):
             }
 
             service.events().insert(calendarId="primary", body=event).execute()
-            print(f"  ✓ Work shift event created for {day}")
+
             events_created += 1
 
         # THIS IS NOW OUTSIDE THE LOOP
-        print(f"\n=== Total events created: {events_created} ===\n")
-
         flash(
             f"Successfully added {events_created} events to your Google Calendar! 🎉",
             "success",
