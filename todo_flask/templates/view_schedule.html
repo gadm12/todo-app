@@ -16,7 +16,9 @@
       {% for day in days_order %} {% set offset_days = day_offsets[day] %} {%
       set days_to_add = timedelta(days=offset_days) %} {% set event_date =
       schedule.week_start_date + days_to_add %}
-      <tr>
+      <tr
+        class="{% if schedule.parsed_data[day] != 'Not Scheduled' %}scheduled-row{% endif %}"
+      >
         <td><strong>{{ day }}</strong></td>
         <td>{{ event_date.strftime('%b %d') }}</td>
         <td>{{ schedule.parsed_data[day] }}</td>
@@ -25,27 +27,29 @@
     </tbody>
   </table>
 
-  {% if current_user.google_calendar_connected %}
-  <a
-    href="{{ url_for('add_to_google_calendar', schedule_id=schedule.id) }}"
-    class="btn btn-complete"
-  >
-    📅 Add to Google Calendar
-  </a>
-  {% else %}
-  <p style="color: #666; margin: 10px 0">
-    <a href="{{ url_for('connect_google_calendar') }}"
-      >Connect Google Calendar</a
+  <div class="button-container">
+    {% if current_user.google_calendar_connected %}
+    <a
+      href="{{ url_for('add_to_google_calendar', schedule_id=schedule.id) }}"
+      class="btn btn-primary"
     >
-    to add events directly!
-  </p>
-  {% endif %}
+      📅 Add to Google Calendar
+    </a>
+    {% else %}
+    <p style="color: #666; margin: 10px 0; text-align: center">
+      <a href="{{ url_for('connect_google_calendar') }}"
+        >Connect Google Calendar</a
+      >
+      to add events directly!
+    </p>
+    {% endif %}
 
-  <a
-    href="{{ url_for('export_ics', schedule_id=schedule.id) }}"
-    style="margin-left: 10px"
-  >
-    or download .ics file
-  </a>
+    <a
+      href="{{ url_for('export_ics', schedule_id=schedule.id) }}"
+      class="btn btn-secondary"
+    >
+      💾 Download .ics File
+    </a>
+  </div>
 </div>
 {% endblock %}

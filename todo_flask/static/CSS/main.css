@@ -560,3 +560,73 @@ table th:nth-child(3),
 table td:nth-child(3) {
   width: auto;
 }
+
+/* ===== Schedule View Styles ===== */
+
+/* Highlight rows with scheduled shifts */
+tr.scheduled-row {
+  background-color: #f3e8ff !important; /* Light purple */
+}
+
+tr.scheduled-row:hover {
+  background-color: #e9d5ff !important; /* Slightly darker purple on hover */
+}
+
+/* Button container for schedule actions */
+.button-container {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 25px;
+  flex-wrap: wrap;
+}
+
+/* Primary button (Google Calendar) */
+.btn-primary {
+  background-color: #7a00cc;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 1em;
+  font-weight: bold;
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background-color: #5b0099;
+  transform: scale(1.05);
+  text-decoration: none;
+}
+
+/* Secondary button (.ics download) */
+.btn-secondary {
+  background-color: #9333ea; /* Lighter purple than primary */
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 1em;
+  font-weight: bold;
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-secondary:hover {
+  background-color: #7a00cc; /* Same as primary on hover */
+  transform: scale(1.05);
+  text-decoration: none;
+}
+
+/* Schedule table header - softer purple instead of gray */
+.content table thead th {
+  background-color: #e9d5ff; /* Light purple to match theme */
+  color: #2a003f; /* Dark purple text */
+  font-weight: bold;
+}
