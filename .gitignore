@@ -12,6 +12,7 @@ credentials.json
 # My temporary test file
 todo_cli/_scratchpad.py
 todo_flask/_scratchpad.py
+_scratchpad.py
 
 #virtual environment
 todo_flask/venv/
