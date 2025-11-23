@@ -17,7 +17,7 @@
       set days_to_add = timedelta(days=offset_days) %} {% set event_date =
       schedule.week_start_date + days_to_add %}
       <tr
-        class="{% if schedule.parsed_data[day] != 'Not Scheduled' %}scheduled-row{% endif %}"
+        class="{% if schedule.parsed_data[day] == 'Not Scheduled' %}not-scheduled-row{% endif %}"
       >
         <td><strong>{{ day }}</strong></td>
         <td>{{ event_date.strftime('%b %d') }}</td>

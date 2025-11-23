@@ -51,6 +51,28 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
+@app.route("/auth", methods=["GET", "POST"])
+def auth():
+    if request.method == "POST":
+        # Check which form was submitted
+        if "login" in request.form or request.referrer.endswith("#login"):
+            # Handle login
+            email = request.form["email"]
+            password = request.form["password"]
+            # ... login logic
+            return redirect(url_for("index"))
+        else:
+            # Handle registration
+            username = request.form["username"]
+            email = request.form["email"]
+            password = request.form["password"]
+            # ... register logic
+            flash("Account created! Please log in.", "success")
+            return redirect(url_for("auth") + "#login")
+
+    return render_template("auth_tabs.html")
+
+
 @app.route("/register", methods=["POST", "GET"])
 def register():
 
@@ -590,6 +612,31 @@ def disconnect_google_calendar():
 
     flash("Google Calendar disconnected.", "info")
     return redirect(url_for("index"))
+
+
+@app.route("/schedules")
+@login_required
+def schedules_list():
+    """Show all schedules for the current user"""
+    schedules = (
+        Schedule.query.filter_by(user_id=current_user.id)
+        .order_by(Schedule.created_at.desc())
+        .all()
+    )
+    return render_template("schedules.html", schedules=schedules)
+
+
+@app.route("/schedule/<int:schedule_id>/delete", methods=["POST"])
+@login_required
+def delete_schedule(schedule_id):
+    """Delete a schedule"""
+    schedule = Schedule.query.filter_by(
+        id=schedule_id, user_id=current_user.id
+    ).first_or_404()
+    db.session.delete(schedule)
+    db.session.commit()
+    flash("Schedule deleted successfully", "info")
+    return redirect(url_for("schedules_list"))
 
 
 if __name__ == "__main__":
