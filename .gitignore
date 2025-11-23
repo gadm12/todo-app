@@ -7,7 +7,7 @@ todo_flask/instance/
 todo_flask/uploads/
 _README.md
 todo_flask/credentials.json
-
+credentials.json
 
 # My temporary test file
 todo_cli/_scratchpad.py
@@ -19,3 +19,30 @@ todo_flask/venv/
 #cache
 todo_flask/__pycache__/
 
+# Virtual environment
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Database
+instance/
+*.db
+
+# Uploads folder
+uploads/
+
+# Environment variables
+.env
+credentials.json
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
