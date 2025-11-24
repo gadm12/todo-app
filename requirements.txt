@@ -13,8 +13,7 @@ easyocr==1.7.2
 opencv-python-headless==4.12.0.88
 pillow==11.3.0
 numpy==1.24.3
-torch==2.1.0
-torchvision==0.16.0
+
 
 # Google Calendar Integration (if you're using it)
 google-auth==2.35.0
