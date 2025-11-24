@@ -422,23 +422,35 @@ def unmark(id):
     return redirect(url_for("index"))
 
 
+
 @app.route("/connect-google-calendar")
 @login_required
 def connect_google_calendar():
     """Initiate Google OAuth flow"""
-    flow = Flow.from_client_secrets_file(
-        config.GOOGLE_CLIENT_SECRETS_FILE,
-        scopes=config.SCOPES,
-        redirect_uri=url_for("oauth2callback", _external=True),
-    )
+    
+    # Read credentials from environment variable or file
+    credentials_json = os.environ.get('GOOGLE_CREDENTIALS')
+    if credentials_json:
+        # Production - from environment variable
+        credentials_dict = json.loads(credentials_json)
+        flow = Flow.from_client_config(
+            credentials_dict,
+            scopes=config.SCOPES,
+            redirect_uri=url_for("oauth2callback", _external=True),
+        )
+    else:
+        # Development - from file
+        flow = Flow.from_client_secrets_file(
+            config.GOOGLE_CLIENT_SECRETS_FILE,
+            scopes=config.SCOPES,
+            redirect_uri=url_for("oauth2callback", _external=True),
+        )
 
     authorization_url, state = flow.authorization_url(
         access_type="offline", include_granted_scopes="true"
     )
 
-    # Store state in session for verification
     from flask import session
-
     session["state"] = state
 
     return redirect(authorization_url)
@@ -452,17 +464,28 @@ def oauth2callback():
 
     state = session["state"]
 
-    flow = Flow.from_client_secrets_file(
-        config.GOOGLE_CLIENT_SECRETS_FILE,
-        scopes=config.SCOPES,
-        state=state,
-        redirect_uri=url_for("oauth2callback", _external=True),
-    )
+    # Read credentials from environment variable or file
+    credentials_json = os.environ.get('GOOGLE_CREDENTIALS')
+    if credentials_json:
+        # Production - from environment variable
+        credentials_dict = json.loads(credentials_json)
+        flow = Flow.from_client_config(
+            credentials_dict,
+            scopes=config.SCOPES,
+            state=state,
+            redirect_uri=url_for("oauth2callback", _external=True),
+        )
+    else:
+        # Development - from file
+        flow = Flow.from_client_secrets_file(
+            config.GOOGLE_CLIENT_SECRETS_FILE,
+            scopes=config.SCOPES,
+            state=state,
+            redirect_uri=url_for("oauth2callback", _external=True),
+        )
 
-    # Get authorization response
     flow.fetch_token(authorization_response=request.url)
 
-    # Store credentials in database
     credentials = flow.credentials
     current_user.google_calendar_token = credentials.to_json()
     current_user.google_calendar_connected = True
