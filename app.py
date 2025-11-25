@@ -428,16 +428,27 @@ def unmark(id):
 def connect_google_calendar():
     """Initiate Google OAuth flow"""
     
-    # Read credentials from environment variable or file
+    # DEBUG - check environment variable
     credentials_json = os.environ.get('GOOGLE_CREDENTIALS')
+    print(f"🔍 DEBUG: GOOGLE_CREDENTIALS exists: {credentials_json is not None}")
     if credentials_json:
-        # Production - from environment variable
-        credentials_dict = json.loads(credentials_json)
-        flow = Flow.from_client_config(
-            credentials_dict,
-            scopes=config.SCOPES,
-            redirect_uri=url_for("oauth2callback", _external=True),
-        )
+        print(f"🔍 DEBUG: First 50 chars: {credentials_json[:50]}")
+    else:
+        print("🔍 DEBUG: Variable is None - using file instead")
+    
+    if credentials_json:
+        try:
+            # Production - from environment variable
+            credentials_dict = json.loads(credentials_json)
+            flow = Flow.from_client_config(
+                credentials_dict,
+                scopes=config.SCOPES,
+                redirect_uri=url_for("oauth2callback", _external=True),
+            )
+            print("✅ Using environment variable credentials")
+        except Exception as e:
+            print(f"❌ Error parsing credentials JSON: {e}")
+            raise
     else:
         # Development - from file
         flow = Flow.from_client_secrets_file(
@@ -445,6 +456,7 @@ def connect_google_calendar():
             scopes=config.SCOPES,
             redirect_uri=url_for("oauth2callback", _external=True),
         )
+        print("✅ Using file credentials")
 
     authorization_url, state = flow.authorization_url(
         access_type="offline", include_granted_scopes="true"
@@ -464,25 +476,34 @@ def oauth2callback():
 
     state = session["state"]
 
-    # Read credentials from environment variable or file
+    # DEBUG - check environment variable
     credentials_json = os.environ.get('GOOGLE_CREDENTIALS')
+    print(f"🔍 CALLBACK DEBUG: GOOGLE_CREDENTIALS exists: {credentials_json is not None}")
+    
     if credentials_json:
-        # Production - from environment variable
-        credentials_dict = json.loads(credentials_json)
-        flow = Flow.from_client_config(
-            credentials_dict,
-            scopes=config.SCOPES,
-            state=state,
-            redirect_uri=url_for("oauth2callback", _external=True),
-        )
+        try:
+            # Production - from environment variable
+            credentials_dict = json.loads(credentials_json)
+            flow = Flow.from_client_config(
+                credentials_dict,
+                scopes=config.SCOPES,
+                state=state,
+                redirect_uri=url_for("oauth2callback", _external=True),
+            )
+            print("✅ CALLBACK: Using environment variable credentials")
+        except Exception as e:
+            print(f"❌ CALLBACK: Error parsing credentials JSON: {e}")
+            raise
     else:
         # Development - from file
+        print("🔍 CALLBACK: Variable is None - using file instead")
         flow = Flow.from_client_secrets_file(
             config.GOOGLE_CLIENT_SECRETS_FILE,
             scopes=config.SCOPES,
             state=state,
             redirect_uri=url_for("oauth2callback", _external=True),
         )
+        print("✅ CALLBACK: Using file credentials")
 
     flow.fetch_token(authorization_response=request.url)
 
