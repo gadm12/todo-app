@@ -12,6 +12,7 @@ from parser import ScheduleParser
 from datetime import datetime, timedelta, time
 from ics import Calendar, Event
 from werkzeug.utils import secure_filename
+from werkzeug.middleware.proxy_fix import ProxyFix
 import os
 import io
 import re
@@ -25,7 +26,7 @@ import config
 
 
 app = Flask(__name__)
-
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 # Configure database
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///tasks.db"
@@ -422,20 +423,19 @@ def unmark(id):
     return redirect(url_for("index"))
 
 
-
 @app.route("/connect-google-calendar")
 @login_required
 def connect_google_calendar():
     """Initiate Google OAuth flow"""
-    
+
     # DEBUG - check environment variable
-    credentials_json = os.environ.get('GOOGLE_CREDENTIALS')
+    credentials_json = os.environ.get("GOOGLE_CREDENTIALS")
     print(f"🔍 DEBUG: GOOGLE_CREDENTIALS exists: {credentials_json is not None}")
     if credentials_json:
         print(f"🔍 DEBUG: First 50 chars: {credentials_json[:50]}")
     else:
         print("🔍 DEBUG: Variable is None - using file instead")
-    
+
     if credentials_json:
         try:
             # Production - from environment variable
@@ -463,6 +463,7 @@ def connect_google_calendar():
     )
 
     from flask import session
+
     session["state"] = state
 
     return redirect(authorization_url)
@@ -477,9 +478,11 @@ def oauth2callback():
     state = session["state"]
 
     # DEBUG - check environment variable
-    credentials_json = os.environ.get('GOOGLE_CREDENTIALS')
-    print(f"🔍 CALLBACK DEBUG: GOOGLE_CREDENTIALS exists: {credentials_json is not None}")
-    
+    credentials_json = os.environ.get("GOOGLE_CREDENTIALS")
+    print(
+        f"🔍 CALLBACK DEBUG: GOOGLE_CREDENTIALS exists: {credentials_json is not None}"
+    )
+
     if credentials_json:
         try:
             # Production - from environment variable
